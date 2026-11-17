@@ -1,0 +1,23 @@
+{
+  "name": "gepomer-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "GEPOMER landing buyurtmalari: Express API + Telegram bot",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=18.17"
+  },
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "NODE_ENV=production node src/server.js",
+    "chat-id": "node scripts/get-chat-id.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.4",
+    "helmet": "^8.3.0"
+  }
+}
