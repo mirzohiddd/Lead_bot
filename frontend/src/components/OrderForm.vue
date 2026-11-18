@@ -54,7 +54,7 @@ async function submit() {
   serverError.value = ''
   check('name')
   check('phone')
-  errors.consent = form.consent ? '' : "Davom etish uchun rozilik belgisini qo'ying"
+  errors.consent = form.consent ? '' : 'Давом этиш учун розилик белгисини қўйинг'
   if (errors.name || errors.phone || errors.consent) {
     document.getElementById(errors.name ? 'f-name' : errors.phone ? 'f-phone' : 'f-consent')?.focus()
     return
@@ -86,12 +86,13 @@ async function submit() {
     idemKey = newIdempotencyKey()
   } catch (err) {
     if (err instanceof ApiError && err.fields) {
-      errors.name = err.fields.name || ''
-      errors.phone = err.fields.phone || ''
-      errors.consent = err.fields.consent || ''
-      serverError.value = err.fields.product || err.fields._ || ''
+      // Server xato matnlari lotinchada — kirillcha matnlarni frontendda ko'rsatamiz
+      errors.name = err.fields.name ? validateName(form.name) || 'Исмни текширинг' : ''
+      errors.phone = err.fields.phone ? 'Телефон рақами нотўғри. Формат: +998XXXXXXXXX' : ''
+      errors.consent = err.fields.consent ? 'Маълумотларни қайта ишлашга розилик беринг' : ''
+      serverError.value = err.fields.product || err.fields._ ? 'Маълумотларни текширинг ва қайта уриниб кўринг.' : ''
     } else {
-      serverError.value = err.message || "Xatolik yuz berdi. Qayta urinib ko'ring."
+      serverError.value = err.message || 'Хатолик юз берди. Қайта уриниб кўринг.'
     }
   } finally {
     loading.value = false
@@ -103,11 +104,11 @@ async function submit() {
   <form class="oform" novalidate :aria-busy="loading" @submit.prevent="submit">
     <!-- Honeypot: odamlarga ko'rinmaydi, botlar to'ldiradi -->
     <div class="oform__hp" aria-hidden="true">
-      <label for="f-website">Veb-sayt</label>
+      <label for="f-website">Веб-сайт</label>
       <input id="f-website" v-model="form.website" type="text" name="website" tabindex="-1" autocomplete="off" />
     </div>
 
-    <label class="oform__label" for="f-name">Ismingiz</label>
+    <label class="oform__label" for="f-name">Исмингиз</label>
     <div class="oform__field" :class="{ err: errors.name }">
       <AppIcon name="user" :size="20" />
       <input
@@ -116,7 +117,7 @@ async function submit() {
         type="text"
         name="name"
         autocomplete="given-name"
-        placeholder="Ismingizni kiriting"
+        placeholder="Исмингизни киритинг"
         maxlength="40"
         :disabled="loading"
         :aria-invalid="!!errors.name"
@@ -127,7 +128,7 @@ async function submit() {
     </div>
     <p id="f-name-e" class="oform__err" role="alert">{{ errors.name }}</p>
 
-    <label class="oform__label" for="f-phone">Telefon raqamingiz</label>
+    <label class="oform__label" for="f-phone">Телефон рақамингиз</label>
     <div class="oform__field oform__field--phone" :class="{ err: errors.phone }">
       <span class="oform__prefix">+998</span>
       <input
@@ -150,12 +151,12 @@ async function submit() {
 
     <label class="oform__check" :class="{ err: errors.consent }">
       <input id="f-consent" v-model="form.consent" type="checkbox" :disabled="loading" @change="errors.consent = ''" />
-      <span>Ma'lumotlarim buyurtma bo'yicha men bilan bog'lanish uchun qayta ishlanishiga roziman</span>
+      <span>Маълумотларим буюртма бўйича мен билан боғланиш учун қайта ишланишига розиман</span>
     </label>
     <p class="oform__err" role="alert">{{ errors.consent }}</p>
     <label class="oform__check">
       <input v-model="form.marketing" type="checkbox" :disabled="loading" />
-      <span>Aksiya va yangiliklar haqida xabar olishga roziman (ixtiyoriy)</span>
+      <span>Акция ва янгиликлар ҳақида хабар олишга розиман (ихтиёрий)</span>
     </label>
 
     <p v-if="serverError" class="oform__server" role="alert">
@@ -165,7 +166,7 @@ async function submit() {
 
     <button type="submit" class="btn btn--primary btn--full oform__btn" :disabled="loading">
       <span v-if="loading" class="spin" aria-hidden="true"></span>
-      {{ loading ? 'Yuborilmoqda...' : 'Buyurtma berish' }}
+      {{ loading ? 'Юборилмоқда...' : 'Буюртма бериш' }}
     </button>
   </form>
 </template>
@@ -178,7 +179,7 @@ async function submit() {
 }
 
 .oform__label {
-  font-size: 13.5px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--bordo-dark);
   margin: 0 0 6px 2px;
@@ -188,7 +189,7 @@ async function submit() {
   display: flex;
   align-items: center;
   gap: 10px;
-  height: 54px;
+  height: 58px;
   padding: 0 14px;
   border-radius: var(--r-input);
   background: var(--white);
@@ -214,7 +215,7 @@ async function submit() {
   outline: 0;
   background: transparent;
   font: inherit;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 600;
   color: var(--text);
 }
@@ -226,7 +227,7 @@ async function submit() {
 
 .oform__prefix {
   font-weight: 800;
-  font-size: 16px;
+  font-size: 17px;
   color: var(--bordo-dark);
   padding-right: 10px;
   border-right: 1.5px solid var(--line);
@@ -234,7 +235,7 @@ async function submit() {
 
 .oform__err {
   margin: 5px 2px 0;
-  font-size: 12.5px;
+  font-size: 14px;
   font-weight: 600;
   color: #c0392b;
 }
@@ -260,15 +261,15 @@ async function submit() {
   align-items: flex-start;
   gap: 10px;
   margin-top: 12px;
-  font-size: 12.5px;
+  font-size: 15px;
   line-height: 1.45;
   color: var(--text-2);
   cursor: pointer;
 }
 
 .oform__check input {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
   margin: 1px 0 0;
   accent-color: var(--bordo);
@@ -287,7 +288,7 @@ async function submit() {
   border-radius: 10px;
   background: #fdecec;
   color: #8a1f1f;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
 }
 

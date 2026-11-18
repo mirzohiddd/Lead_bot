@@ -25,16 +25,16 @@ export function formatPhone(local) {
 
 export function validateName(name) {
   const v = String(name || '').trim()
-  if (!v) return 'Ismingizni kiriting'
-  if (v.length < 2) return "Ism kamida 2 ta harfdan iborat bo'lsin"
-  if (v.length > 40) return 'Ism juda uzun'
-  if (!/^[A-Za-zА-Яа-яЁёЎўҚқҒғҲҳʻʼ'`‘’\s-]+$/.test(v)) return 'Ismda faqat harflar bo\'lsin'
+  if (!v) return 'Исмингизни киритинг'
+  if (v.length < 2) return 'Исм камида 2 та ҳарфдан иборат бўлсин'
+  if (v.length > 40) return 'Исм жуда узун'
+  if (!/^[A-Za-zА-Яа-яЁёЎўҚқҒғҲҳʻʼ'`‘’\s-]+$/.test(v)) return 'Исмда фақат ҳарфлар бўлсин'
   return ''
 }
 
 export function validatePhone(local) {
-  if (!local) return 'Telefon raqamingizni kiriting'
-  if (local.length < 9) return "Raqam to'liq emas: +998 XX XXX XX XX"
-  if (!OPERATOR_CODES.includes(local.slice(0, 2))) return "Operator kodi noto'g'ri"
+  if (!local) return 'Телефон рақамингизни киритинг'
+  if (local.length < 9) return 'Рақам тўлиқ эмас: +998 XX XXX XX XX'
+  if (!OPERATOR_CODES.includes(local.slice(0, 2))) return 'Оператор коди нотўғри'
   return ''
 }

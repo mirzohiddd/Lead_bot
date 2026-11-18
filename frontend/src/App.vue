@@ -74,7 +74,7 @@ const year = new Date().getFullYear()
 
 <template>
   <div class="page">
-    <a href="#asosiy" class="skip">Asosiy mazmunga o'tish</a>
+    <a href="#asosiy" class="skip">Асосий мазмунга ўтиш</a>
 
     <!-- ===== 0. Ustki panel ===== -->
     <div class="topbar">
@@ -83,7 +83,7 @@ const year = new Date().getFullYear()
 
     <header class="head">
       <img :src="logo" alt="GEPOMER" width="140" height="34" />
-      <a :href="C.contacts.phoneHref" class="head__call" aria-label="Qo'ng'iroq qilish">
+      <a :href="C.contacts.phoneHref" class="head__call" aria-label="Қўнғироқ қилиш">
         <AppIcon name="phone" :size="18" />
       </a>
     </header>
@@ -99,7 +99,7 @@ const year = new Date().getFullYear()
           <img
             class="hero__photo"
             :src="C.images.complexImg"
-            alt="GEPOMER Complex — quti va paketchalar"
+            alt="GEPOMER Complex — қути ва пакетчалар"
             width="720"
             height="960"
             fetchpriority="high"
@@ -108,8 +108,8 @@ const year = new Date().getFullYear()
             <img :src="C.images.pasteSm" alt="GEPOMER Pasta" width="300" height="450" />
             <img :src="C.images.syrupSm" alt="GEPOMER Sirop" width="300" height="450" />
           </div>
-          <span class="hero__chip hero__chip--1">40+ giyoh</span>
-          <span class="hero__chip hero__chip--2">100% tabiiy</span>
+          <span class="hero__chip hero__chip--1">40+ гиёҳ</span>
+          <span class="hero__chip hero__chip--2">100% табиий</span>
         </div>
 
         <p class="hero__text2">{{ C.hero.text2 }}</p>
@@ -139,7 +139,7 @@ const year = new Date().getFullYear()
           <div v-for="(s, i) in C.stats.items" :key="s.value" class="stat" v-reveal="i * 80">
             <strong>{{ s.value }}</strong>
             <p>{{ s.label }}</p>
-            <small>Manba: {{ s.source }}</small>
+            <small>Манба: {{ s.source }}</small>
           </div>
         </div>
         <p class="stats__note" v-reveal>{{ C.stats.note }}</p>
@@ -151,7 +151,7 @@ const year = new Date().getFullYear()
               <AppIcon v-else name="user" :size="34" />
             </div>
             <div>
-              <span class="expert__label">Mutaxassis fikri</span>
+              <span class="expert__label">Мутахассис фикри</span>
               <strong>{{ C.expert.name }}</strong>
               <small>{{ C.expert.role }}</small>
             </div>
@@ -170,7 +170,7 @@ const year = new Date().getFullYear()
         <h2 class="sec__title" v-reveal>{{ C.symptoms.title }}</h2>
         <p class="sec__lead" v-reveal>{{ C.symptoms.lead }}</p>
 
-        <div class="checks" role="group" aria-label="Belgilar ro'yxati">
+        <div class="checks" role="group" aria-label="Белгилар рўйхати">
           <label v-for="s in C.symptoms.items" :key="s" class="chk" :class="{ on: checked.includes(s) }">
             <input v-model="checked" type="checkbox" :value="s" />
             <span class="chk__box"><AppIcon name="check" :size="16" :stroke="3" /></span>
@@ -184,7 +184,7 @@ const year = new Date().getFullYear()
           </div>
           <p>{{ checkedCount ? C.symptoms.resultSome : C.symptoms.resultNone }}</p>
           <button v-if="checkedCount" class="btn btn--primary btn--full" type="button" @click="toForm">
-            Bepul maslahat olish
+            Бепул маслаҳат олиш
           </button>
         </div>
 
@@ -229,7 +229,7 @@ const year = new Date().getFullYear()
           <span v-for="b in C.productIntro.badges" :key="b">{{ b }}</span>
         </div>
 
-        <h3 class="sub">Mahsulotlar liniyasi</h3>
+        <h3 class="sub">Маҳсулотлар линияси</h3>
         <div class="products">
           <article v-for="p in C.products" :key="p.id" class="card prod" v-reveal>
             <div class="prod__img">
@@ -254,7 +254,7 @@ const year = new Date().getFullYear()
           </div>
         </div>
 
-        <button class="btn btn--primary btn--full mt" type="button" @click="toForm">Buyurtma berish</button>
+        <button class="btn btn--primary btn--full mt" type="button" @click="toForm">Буюртма бериш</button>
       </section>
 
       <!-- ===== 7. KIMLAR UCHUN + QO'LLASH ===== -->
@@ -281,15 +281,15 @@ const year = new Date().getFullYear()
 
       <!-- ===== 8. VIDEO SHARHLAR ===== -->
       <section id="videolar" class="sec sec--dark sec--videos">
-        <h2 class="sec__title" v-reveal>Video <em>sharhlar</em></h2>
-        <p class="sec__lead">Videoni ko'rish uchun ustiga bosing</p>
+        <h2 class="sec__title" v-reveal>Видео <em>шарҳлар</em></h2>
+        <p class="sec__lead">Видеони кўриш учун устига босинг</p>
         <div ref="track" class="vtrack" @scroll.passive="onTrackScroll">
           <button
             v-for="v in C.videos"
             :key="v.id"
             type="button"
             class="vid"
-            :aria-label="`${v.title} — ko'rish`"
+            :aria-label="`${v.title} — кўриш`"
             @click="openVideo(v)"
           >
             <span class="vid__thumb">
@@ -305,7 +305,7 @@ const year = new Date().getFullYear()
             :key="v.id"
             type="button"
             :class="{ on: activeVideo === i }"
-            :aria-label="`${i + 1}-video`"
+            :aria-label="`${i + 1}-видео`"
             @click="scrollVideos(i)"
           ></button>
         </div>
@@ -353,12 +353,12 @@ const year = new Date().getFullYear()
           </article>
         </div>
         <p class="reviews__note">{{ C.reviews.note }}</p>
-        <button class="btn btn--outline btn--full" type="button" @click="goTo('videolar')">Video sharhlarni ko'rish</button>
+        <button class="btn btn--outline btn--full" type="button" @click="goTo('videolar')">Видео шарҳларни кўриш</button>
       </section>
 
       <!-- ===== 10b. FAQ ===== -->
       <section id="faq" class="sec">
-        <h2 class="sec__title" v-reveal>Ko'p beriladigan savollar</h2>
+        <h2 class="sec__title" v-reveal>Кўп бериладиган саволлар</h2>
         <div class="mt-sm">
           <AccordionList :items="C.faq" id-prefix="faq" numbered />
         </div>
@@ -369,7 +369,7 @@ const year = new Date().getFullYear()
         <div class="final__card" v-reveal>
           <div class="final__img ph">
             <AppIcon name="image" :size="34" />
-            <span>[Oila fotosurati — litsenziyali rasm qo'ying]</span>
+            <span>[Оила фотосурати — лицензияли расм қўйинг]</span>
           </div>
           <div class="final__body">
             <AppIcon name="heart" :size="28" class="final__heart" />
@@ -385,11 +385,11 @@ const year = new Date().getFullYear()
     <!-- ===== FOOTER ===== -->
     <footer class="foot">
       <img :src="logo" alt="GEPOMER" width="130" height="31" loading="lazy" />
-      <nav class="foot__nav" aria-label="Pastki menyu">
-        <a href="#mahsulot" @click.prevent="goTo('mahsulot')">Mahsulot</a>
-        <a href="#forma" @click.prevent="goTo('forma')">Buyurtma</a>
-        <a href="#alomatlar" @click.prevent="goTo('alomatlar')">Belgilar</a>
-        <a href="#faq" @click.prevent="goTo('faq')">Savollar</a>
+      <nav class="foot__nav" aria-label="Пастки меню">
+        <a href="#mahsulot" @click.prevent="goTo('mahsulot')">Маҳсулот</a>
+        <a href="#forma" @click.prevent="goTo('forma')">Буюртма</a>
+        <a href="#alomatlar" @click.prevent="goTo('alomatlar')">Белгилар</a>
+        <a href="#faq" @click.prevent="goTo('faq')">Саволлар</a>
       </nav>
       <div class="foot__soc">
         <a :href="C.contacts.phoneHref"><AppIcon name="phone" :size="16" /> {{ C.contacts.phone }}</a>
@@ -402,18 +402,18 @@ const year = new Date().getFullYear()
         </div>
       </div>
       <details class="foot__src">
-        <summary>Statistika manbalari</summary>
+        <summary>Статистика манбалари</summary>
         <ul><li v-for="s in C.sources" :key="s">{{ s }}</li></ul>
       </details>
-      <a href="#" class="foot__privacy" @click.prevent>Maxfiylik siyosati [PLACEHOLDER]</a>
-      <small>© {{ year }} GEPOMER. Barcha huquqlar himoyalangan.</small>
+      <a href="#" class="foot__privacy" @click.prevent>Махфийлик сиёсати [PLACEHOLDER]</a>
+      <small>© {{ year }} GEPOMER. Барча ҳуқуқлар ҳимояланган.</small>
     </footer>
 
     <!-- ===== Pastki sticky CTA ===== -->
     <Transition name="sticky">
       <div v-show="showSticky" class="sticky">
-        <a :href="C.contacts.phoneHref" class="sticky__call" aria-label="Qo'ng'iroq qilish"><AppIcon name="phone" :size="20" /></a>
-        <button class="btn btn--primary" type="button" @click="toForm">Buyurtma berish</button>
+        <a :href="C.contacts.phoneHref" class="sticky__call" aria-label="Қўнғироқ қилиш"><AppIcon name="phone" :size="20" /></a>
+        <button class="btn btn--primary" type="button" @click="toForm">Буюртма бериш</button>
       </div>
     </Transition>
 
@@ -430,12 +430,12 @@ const year = new Date().getFullYear()
       </div>
     </BaseModal>
 
-    <BaseModal :open="success.open" label="Ariza qabul qilindi" @close="success.open = false">
+    <BaseModal :open="success.open" label="Ариза қабул қилинди" @close="success.open = false">
       <div class="ok">
         <div class="ok__icon"><AppIcon name="check" :size="44" :stroke="2.2" /></div>
-        <h2>Rahmat, {{ success.name }}!</h2>
-        <p>Arizangiz qabul qilindi! Tez orada siz bilan bog'lanamiz.</p>
-        <button class="btn btn--primary btn--full" type="button" @click="success.open = false">Yaxshi</button>
+        <h2>Раҳмат, {{ success.name }}!</h2>
+        <p>Аризангиз қабул қилинди! Тез орада сиз билан боғланамиз.</p>
+        <button class="btn btn--primary btn--full" type="button" @click="success.open = false">Яхши</button>
       </div>
     </BaseModal>
   </div>
@@ -464,7 +464,7 @@ const year = new Date().getFullYear()
   padding: 8px 10px;
   background: var(--bordo-deep);
   color: var(--gold-light);
-  font-size: 11.5px;
+  font-size: 13px;
   font-weight: 700;
 }
 .topbar span {
@@ -509,23 +509,24 @@ const year = new Date().getFullYear()
   border-radius: 999px;
   background: var(--bordo-soft);
   color: var(--bordo);
-  font-size: 12px;
+  font-size: 13.5px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 .hero__title {
   margin-top: 14px;
-  font-size: 28px;
-  line-height: 1.2;
+  font-size: clamp(28px, 8.4vw, 35px);
+  line-height: 1.22;
   font-weight: 900;
   color: var(--bordo-dark);
   letter-spacing: -0.015em;
 }
 .hero__text {
   margin-top: 12px;
-  font-size: 15px;
+  font-size: 17px;
   color: var(--text-2);
+  line-height: 1.6;
 }
 .hero__visual {
   position: relative;
@@ -572,7 +573,7 @@ const year = new Date().getFullYear()
   border-radius: 999px;
   background: var(--bordo);
   color: #fff;
-  font-size: 11.5px;
+  font-size: 13px;
   font-weight: 800;
   box-shadow: var(--shadow-pop);
 }
@@ -587,9 +588,10 @@ const year = new Date().getFullYear()
   color: var(--bordo-deep);
 }
 .hero__text2 {
-  font-size: 14.5px;
+  font-size: 16.5px;
   font-weight: 600;
   color: var(--bordo-dark);
+  line-height: 1.55;
 }
 .hero__btns {
   display: grid;
@@ -622,19 +624,20 @@ const year = new Date().getFullYear()
 }
 .stat p {
   margin-top: 6px;
-  font-size: 14px;
+  font-size: 16px;
   color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
 }
 .stat small {
   display: block;
   margin-top: 6px;
-  font-size: 11px;
+  font-size: 12.5px;
   color: rgba(255, 255, 255, 0.55);
 }
 .stats__note {
   margin-top: 14px;
   text-align: center;
-  font-size: 13.5px;
+  font-size: 15.5px;
   color: rgba(255, 255, 255, 0.8);
 }
 .expert {
@@ -668,7 +671,7 @@ const year = new Date().getFullYear()
 }
 .expert__label {
   display: block;
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -680,6 +683,7 @@ const year = new Date().getFullYear()
 }
 .expert small {
   color: var(--text-2);
+  font-size: 14.5px;
 }
 .expert blockquote {
   margin: 14px 0 0;
@@ -687,7 +691,8 @@ const year = new Date().getFullYear()
   border-top: 1px solid var(--line);
   display: flex;
   gap: 10px;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.55;
 }
 .expert blockquote svg {
   flex-shrink: 0;
@@ -699,6 +704,7 @@ const year = new Date().getFullYear()
   font-style: italic;
   font-weight: 600;
   color: var(--gold-light);
+  font-size: 17px;
 }
 
 /* ---- Checkbox ---- */
@@ -710,15 +716,16 @@ const year = new Date().getFullYear()
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 13px 14px;
+  padding: 14px 14px;
   border-radius: 12px;
   background: var(--white);
   border: 1.5px solid var(--line);
   cursor: pointer;
   font-weight: 600;
-  font-size: 14.5px;
+  font-size: 16.5px;
   transition: border-color 0.2s, background 0.2s;
   -webkit-tap-highlight-color: transparent;
+  line-height: 1.4;
 }
 .chk input {
   position: absolute;
@@ -765,7 +772,7 @@ const year = new Date().getFullYear()
   background: #fffaf0;
 }
 .checks__count {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-2);
 }
 .checks__count strong {
@@ -774,9 +781,10 @@ const year = new Date().getFullYear()
   color: var(--bordo);
 }
 .checks__result p {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--bordo-dark);
+  line-height: 1.5;
 }
 .emergency {
   margin-top: 14px;
@@ -786,8 +794,9 @@ const year = new Date().getFullYear()
   border-radius: 12px;
   background: #fdecec;
   color: #8a1f1f;
-  font-size: 13.5px;
+  font-size: 15.5px;
   font-weight: 600;
+  line-height: 1.5;
 }
 .emergency svg {
   flex-shrink: 0;
@@ -833,14 +842,15 @@ const year = new Date().getFullYear()
   flex: 1;
 }
 .step__card h3 {
-  font-size: 16px;
+  font-size: 18.5px;
   font-weight: 800;
   color: var(--bordo-dark);
 }
 .step__card p {
   margin-top: 4px;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-2);
+  line-height: 1.55;
 }
 
 /* ---- Mahsulot ---- */
@@ -886,7 +896,8 @@ const year = new Date().getFullYear()
   border-radius: 12px;
   background: var(--white);
   font-weight: 600;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.4;
 }
 .ticks span {
   width: 26px;
@@ -910,15 +921,16 @@ const year = new Date().getFullYear()
   border-radius: 999px;
   background: var(--grad-gold);
   color: var(--bordo-deep);
-  font-size: 12.5px;
+  font-size: 14px;
   font-weight: 800;
 }
 .sub {
   margin: 30px 0 14px;
   text-align: center;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 800;
   color: var(--bordo-dark);
+  line-height: 1.25;
 }
 .sub + .sec__lead {
   margin-top: -6px;
@@ -948,14 +960,15 @@ const year = new Date().getFullYear()
 }
 .prod h4 {
   margin: 0;
-  font-size: 16px;
+  font-size: 19px;
   font-weight: 800;
   color: var(--bordo-dark);
 }
 .prod p {
   margin-top: 4px;
-  font-size: 13px;
+  font-size: 15.5px;
   color: var(--text-2);
+  line-height: 1.5;
 }
 .prod__tags {
   display: flex;
@@ -968,7 +981,7 @@ const year = new Date().getFullYear()
   border-radius: 999px;
   background: var(--bordo-soft);
   color: var(--bordo);
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 700;
 }
 .ingr {
@@ -987,10 +1000,10 @@ const year = new Date().getFullYear()
   margin-bottom: 4px;
 }
 .ingr__item strong {
-  font-size: 13.5px;
+  font-size: 15.5px;
 }
 .ingr__item small {
-  font-size: 11.5px;
+  font-size: 13.5px;
 }
 .mt {
   margin-top: 22px;
@@ -1013,7 +1026,8 @@ const year = new Date().getFullYear()
   gap: 12px;
   padding: 12px 14px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.45;
 }
 .who li span {
   width: 34px;
@@ -1038,14 +1052,14 @@ const year = new Date().getFullYear()
   border-bottom: 0;
 }
 .usage__row span {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--gold-dark);
 }
 .usage__row strong {
-  font-size: 14px;
+  font-size: 16px;
 }
 .warns {
   list-style: none;
@@ -1061,8 +1075,9 @@ const year = new Date().getFullYear()
   border-radius: 12px;
   background: #fff6e4;
   color: var(--bordo-dark);
-  font-size: 13.5px;
+  font-size: 15.5px;
   font-weight: 600;
+  line-height: 1.5;
 }
 .warns svg {
   flex-shrink: 0;
@@ -1139,7 +1154,7 @@ const year = new Date().getFullYear()
   display: block;
   margin-top: 8px;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 16px;
 }
 .vdots {
   display: flex;
@@ -1206,11 +1221,12 @@ const year = new Date().getFullYear()
 .osteps strong {
   display: block;
   color: var(--bordo-dark);
-  font-size: 14.5px;
+  font-size: 17px;
 }
 .osteps p {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-2);
+  line-height: 1.5;
 }
 .form-card {
   padding: 20px 16px;
@@ -1230,13 +1246,13 @@ const year = new Date().getFullYear()
   border-radius: 4px;
 }
 .form-card__head h3 {
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 900;
   color: var(--bordo-dark);
 }
 .form-card__head p {
   margin-top: 4px;
-  font-size: 13.5px;
+  font-size: 15.5px;
   color: var(--text-2);
 }
 .trust {
@@ -1250,7 +1266,7 @@ const year = new Date().getFullYear()
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--text-2);
 }
@@ -1285,17 +1301,18 @@ const year = new Date().getFullYear()
 }
 .review strong {
   display: block;
-  font-size: 14px;
+  font-size: 16px;
 }
 .review small {
-  font-size: 12px;
+  font-size: 13.5px;
 }
 .review p {
-  font-size: 13.5px;
+  font-size: 15.5px;
+  line-height: 1.55;
 }
 .reviews__note {
   text-align: center;
-  font-size: 12px;
+  font-size: 13.5px;
   color: var(--text-2);
   margin-bottom: 14px;
 }
@@ -1319,7 +1336,7 @@ const year = new Date().getFullYear()
   gap: 8px;
   text-align: center;
   color: var(--gold-dark);
-  font-size: 12.5px;
+  font-size: 14px;
   font-style: italic;
   border-width: 0 0 1.5px;
   padding: 0 20px;
@@ -1333,19 +1350,21 @@ const year = new Date().getFullYear()
   color: var(--gold-light);
 }
 .final__body h2 {
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 900;
+  line-height: 1.25;
 }
 .final__body p {
   margin: 8px 0 18px;
-  font-size: 14px;
+  font-size: 16.5px;
   color: rgba(255, 255, 255, 0.82);
+  line-height: 1.55;
 }
 .disclaimer {
   margin-top: 14px;
   display: flex;
   gap: 8px;
-  font-size: 12.5px;
+  font-size: 14px;
   color: var(--text-2);
 }
 .disclaimer svg {
@@ -1362,7 +1381,7 @@ const year = new Date().getFullYear()
   padding: 28px var(--pad) 100px;
   background: var(--bordo-deep);
   color: rgba(255, 255, 255, 0.7);
-  font-size: 13px;
+  font-size: 15px;
 }
 .foot img {
   height: 28px;
@@ -1403,7 +1422,7 @@ const year = new Date().getFullYear()
   color: var(--gold-light);
 }
 .foot__src {
-  font-size: 11.5px;
+  font-size: 13px;
   text-align: left;
   max-width: 100%;
 }
@@ -1476,11 +1495,12 @@ const year = new Date().getFullYear()
   color: var(--bordo-deep);
 }
 .ok h2 {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 900;
   color: var(--bordo-dark);
 }
 .ok p {
   color: var(--text-2);
+  font-size: 16.5px;
 }
 </style>

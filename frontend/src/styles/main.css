@@ -46,8 +46,8 @@ html {
 body {
   margin: 0;
   font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  font-size: 15px;
-  line-height: 1.55;
+  font-size: 17px;
+  line-height: 1.6;
   color: var(--text);
   background: #e9dfd0;
   -webkit-font-smoothing: antialiased;
@@ -121,7 +121,7 @@ p {
 }
 
 .sec__title {
-  font-size: 24px;
+  font-size: clamp(24px, 7vw, 30px);
   line-height: 1.25;
   font-weight: 800;
   color: var(--bordo-dark);
@@ -145,8 +145,9 @@ p {
 .sec__lead {
   margin: 10px auto 22px;
   text-align: center;
-  font-size: 14.5px;
+  font-size: 16.5px;
   color: var(--text-2);
+  line-height: 1.6;
 }
 
 .sec--dark .sec__lead {
@@ -159,9 +160,10 @@ p {
   border-radius: 12px;
   background: var(--bordo-soft);
   border-left: 4px solid var(--bordo);
-  font-size: 13.5px;
+  font-size: 15.5px;
   font-weight: 600;
   color: var(--bordo-dark);
+  line-height: 1.55;
 }
 
 /* ----- Karta ----- */
@@ -179,16 +181,18 @@ p {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 54px;
-  padding: 0 22px;
+  min-height: 58px;
+  padding: 12px 20px;
   border-radius: var(--r-btn);
   border: 0;
   font-weight: 800;
-  font-size: 15.5px;
-  letter-spacing: 0.01em;
+  font-size: 17px;
+  letter-spacing: 0;
   text-transform: uppercase;
   transition: transform 0.2s var(--ease), box-shadow 0.2s, filter 0.2s;
   -webkit-tap-highlight-color: transparent;
+  line-height: 1.25;
+  text-align: center;
 }
 
 .btn:active {

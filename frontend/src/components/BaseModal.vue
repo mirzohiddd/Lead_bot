@@ -4,7 +4,7 @@ import AppIcon from './AppIcon.vue'
 
 const props = defineProps({
   open: { type: Boolean, default: false },
-  label: { type: String, default: 'Oyna' },
+  label: { type: String, default: 'Ойна' },
   size: { type: String, default: 'md' }, // md | video
   dark: { type: Boolean, default: false }
 })
@@ -71,7 +71,7 @@ onBeforeUnmount(() => {
     <Transition name="modal">
       <div v-if="open" class="modal" role="dialog" aria-modal="true" :aria-label="label" @click.self="emit('close')">
         <div ref="panel" class="modal__panel" :class="[`modal__panel--${size}`, { 'is-dark': dark }]">
-          <button class="modal__close" type="button" aria-label="Yopish" @click="emit('close')">
+          <button class="modal__close" type="button" aria-label="Ёпиш" @click="emit('close')">
             <AppIcon name="close" :size="22" />
           </button>
           <slot />

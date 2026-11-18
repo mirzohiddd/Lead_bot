@@ -63,11 +63,11 @@ const toggle = (i) => (open.value = open.value === i ? -1 : i)
   align-items: center;
   gap: 12px;
   padding: 14px 14px;
-  min-height: 60px;
+  min-height: 64px;
   background: none;
   border: 0;
   text-align: left;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--bordo-dark);
   -webkit-tap-highlight-color: transparent;
@@ -120,7 +120,7 @@ const toggle = (i) => (open.value = open.value === i ? -1 : i)
 .acc__clip p {
   margin: 0;
   padding: 0 16px 16px 64px;
-  font-size: 14.5px;
+  font-size: 16px;
   line-height: 1.6;
   color: var(--text-2);
 }

@@ -34,8 +34,8 @@ export async function createOrder(payload, idempotencyKey) {
   } catch (err) {
     throw new ApiError(
       err.name === 'AbortError'
-        ? "Server javob bermadi. Internetni tekshirib, qayta urinib ko'ring."
-        : "Internet aloqasi yo'q yoki server ishlamayapti. Qayta urinib ko'ring."
+        ? 'Сервер жавоб бермади. Интернетни текшириб, қайта уриниб кўринг.'
+        : 'Интернет алоқаси йўқ ёки сервер ишламаяпти. Қайта уриниб кўринг.'
     )
   } finally {
     clearTimeout(timer)
@@ -50,13 +50,15 @@ export async function createOrder(payload, idempotencyKey) {
 
   if (res.ok && data?.ok) return data
 
+  // Server xabarlari lotinchada keladi — foydalanuvchiga kirillcha matn ko'rsatamiz
+
   if (res.status === 400 && data?.errors) {
-    throw new ApiError("Ma'lumotlarni tekshiring.", { status: 400, fields: data.errors })
+    throw new ApiError('Маълумотларни текширинг.', { status: 400, fields: data.errors })
   }
   if (res.status === 429) {
-    throw new ApiError(data?.message || "Juda ko'p urinish. Birozdan keyin qayta urinib ko'ring.", { status: 429 })
+    throw new ApiError('Жуда кўп уриниш. Бироздан кейин қайта уриниб кўринг.', { status: 429 })
   }
-  throw new ApiError(data?.message || "Xatolik yuz berdi. Iltimos, qayta urinib ko'ring yoki bizga qo'ng'iroq qiling.", {
+  throw new ApiError('Хатолик юз берди. Илтимос, қайта уриниб кўринг ёки бизга қўнғироқ қилинг.', {
     status: res.status
   })
 }
