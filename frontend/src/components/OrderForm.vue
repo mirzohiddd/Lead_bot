@@ -4,7 +4,7 @@ import AppIcon from './AppIcon.vue'
 import { validateName, validatePhone } from '../utils/form.js'
 import { createOrder, newIdempotencyKey, ApiError } from '../api/orders.js'
 import { getUtm } from '../utils/utm.js'
-import { trackLead } from '../utils/tracking.js'
+import { trackLead } from '../utils/metaPixel.js'
 
 const props = defineProps({
   // Agar sahifada mahsulot tanlash bo'lsa: 'complex' | 'paste' | 'syrup'
@@ -180,7 +180,7 @@ async function submit() {
       :disabled="loading"
     >
       <span v-if="loading" class="spin" aria-hidden="true"></span>
-      {{ loading ? 'Юборилмоқда...' : 'Буюртма бериш' }}
+      {{ loading ? 'ЮБОРИЛМОҚДА...' : 'БУЮРТМА БЕРИШ' }}
     </button>
     <p v-if="loading && slow" class="oform__slow" role="status">Сервер уланмоқда, илтимос, саҳифани ёпманг...</p>
   </form>

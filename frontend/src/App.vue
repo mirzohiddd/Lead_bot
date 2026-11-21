@@ -180,7 +180,7 @@ const year = new Date().getFullYear()
             type="button"
             @click="toForm"
           >
-            Мутахассис билан боғланиш
+            МУТАХАССИС БИЛАН БОҒЛАНИШ
           </button>
         </div>
 
@@ -251,7 +251,7 @@ const year = new Date().getFullYear()
         </div>
 
         <button id="cta_products_details" data-cta="cta_products_details" class="btn btn--primary btn--full mt" type="button" @click="toForm">
-          Батафсил маълумот олиш
+          БАТАФСИЛ МАЪЛУМОТ ОЛИШ
         </button>
       </section>
 
@@ -327,7 +327,7 @@ const year = new Date().getFullYear()
         </div>
         <p class="reviews__note">{{ C.reviews.note }}</p>
         <button id="cta_reviews" data-cta="cta_reviews" class="btn btn--outline btn--full" type="button" @click="goTo('videolar')">
-          Видео шарҳларни кўриш
+          ВИДЕО ШАРҲЛАРНИ КЎРИШ
         </button>
       </section>
 
@@ -398,8 +398,8 @@ const year = new Date().getFullYear()
         <a id="cta_sticky_call" data-cta="cta_sticky_call" :href="C.contacts.phoneHref" class="sticky__call" aria-label="Қўнғироқ қилиш">
           <AppIcon name="phone" :size="20" />
         </a>
-        <button id="cta_sticky_consultation" data-cta="cta_sticky_consultation" class="btn btn--primary" type="button" @click="toForm">
-          Маслаҳатга ёзилиш
+        <button id="cta_sticky_more_info" data-cta="cta_sticky_more_info" class="btn btn--primary" type="button" @click="toForm">
+          ҚЎШИМЧА МАЪЛУМОТ ОЛИШ
         </button>
       </div>
     </Transition>

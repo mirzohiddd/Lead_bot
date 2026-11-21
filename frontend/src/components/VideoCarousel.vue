@@ -1,106 +1,81 @@
 <script setup>
-// Inline YouTube player: video aynan bosilgan kartaning o'zida ochiladi (yangi tab yoki modal yo'q).
-// - Sahifa ochilganda hech qanday iframe yuklanmaydi — faqat thumbnail.
-// - Bir vaqtda faqat bitta iframe bor: yangi video ochilsa, oldingisi o'chiriladi (to'xtaydi).
-// - Shorts (vertikal) — 9:16, oddiy video — 16:9. Format haqiqiy thumbnail bo'yicha aniqlanadi:
-//   Shorts bo'lmagan video hech qachon /shorts/ havolasiga aylantirilmaydi.
-//   content.js da video uchun format: 'short' | 'video' qilib qo'lda ham berish mumkin.
-// - Har bir video ostida «Тўлиқ видеони YouTube'да кўриш» havolasi doim ko'rinadi.
-import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
+// Video sharhlar — vertikal (9:16) kartalardan iborat gorizontal carousel.
+// - Video aynan bosilgan kartaning ichida ijro etiladi: modal, popup, overlay yoki yangi oyna yo'q.
+// - Sahifa ochilganda iframe yuklanmaydi — faqat thumbnail va Play tugmasi.
+// - Bir vaqtda faqat bitta iframe bor: boshqa video bosilsa, oldingisi o'chiriladi (to'xtaydi).
+// - Carousel ekrandan chiqib ketsa, ijro etilayotgan video ham to'xtatiladi (arzon telefonlarda resurs tejaladi).
+// - playsinline=1: iPhone va Instagram ichki brauzerida fullscreen avtomatik ochilmaydi.
+// - Video havolalari o'zgarmaydi; Shorts bo'lmagan video /shorts/ havolasiga aylantirilmaydi.
+//   Haqiqiy Shorts uchun content.js da format: 'short' deb belgilash mumkin.
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import AppIcon from './AppIcon.vue'
 
 const props = defineProps({
   videos: { type: Array, required: true } // [{ id, title, format? }]
 })
 
+const root = ref(null)
 const track = ref(null)
 const playing = ref(-1)
 const activeDot = ref(0)
 
-// Har bir video formati: 'short' | 'video' | 'auto' (aniqlanmoqda)
-const formats = reactive(props.videos.map((v) => v.format || 'auto'))
-const thumbs = reactive(
-  props.videos.map((v) =>
-    v.format === 'video'
-      ? `https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`
-      : // Vertikal thumbnail faqat Shorts uchun mavjud — shu orqali formatni aniqlaymiz
-        `https://i.ytimg.com/vi/${v.id}/oardefault.jpg`
-  )
-)
-
-function asRegular(i) {
-  formats[i] = 'video'
-  const url = `https://i.ytimg.com/vi/${props.videos[i].id}/hqdefault.jpg`
-  if (thumbs[i] !== url) thumbs[i] = url
-}
-
-function onThumbLoad(e, i) {
-  if (formats[i] !== 'auto') return
-  const { naturalWidth: w, naturalHeight: h } = e.target
-  // YouTube mavjud bo'lmagan rasm o'rniga 120x90 "bo'sh" rasm qaytaradi
-  if (h > w && w > 120) formats[i] = 'short'
-  else asRegular(i)
-}
-
-function onThumbError(i) {
-  if (formats[i] === 'auto' || formats[i] === 'short') asRegular(i)
-}
-
-const embedUrl = (id) =>
-  `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&playsinline=1&rel=0&modestbranding=1`
-const watchUrl = (v, i) =>
-  formats[i] === 'short' ? `https://www.youtube.com/shorts/${v.id}` : `https://www.youtube.com/watch?v=${v.id}`
+const thumbUrl = (v) => `https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`
+const embedUrl = (v) =>
+  `https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&playsinline=1&rel=0&modestbranding=1&controls=1`
+const watchUrl = (v) =>
+  v.format === 'short' ? `https://www.youtube.com/shorts/${v.id}` : `https://www.youtube.com/watch?v=${v.id}`
 
 function play(i) {
-  playing.value = i // oldingi iframe avtomatik o'chiriladi → video to'xtaydi
+  playing.value = i // oldingi iframe DOM'dan olib tashlanadi → oldingi video to'xtaydi
 }
 
-/* ---- Nuqtalar (scroll bo'yicha), requestAnimationFrame bilan cheklangan ---- */
+/* ---- Nuqtalar: scroll'ni requestAnimationFrame bilan cheklab hisoblaymiz ---- */
 let raf = 0
+function stepWidth() {
+  const card = track.value?.children[0]
+  return card ? card.offsetWidth + 12 : 1
+}
 function onScroll() {
   if (raf) return
   raf = requestAnimationFrame(() => {
     raf = 0
     const el = track.value
     if (!el) return
-    const cards = el.children
-    const x = el.scrollLeft + 1
-    let idx = 0
-    for (let i = 0; i < props.videos.length; i++) {
-      if (cards[i] && cards[i].offsetLeft - el.offsetLeft - 16 <= x) idx = i
-    }
-    activeDot.value = idx
+    activeDot.value = Math.min(props.videos.length - 1, Math.round(el.scrollLeft / stepWidth()))
   })
 }
-
 function goTo(i) {
-  const el = track.value
-  const card = el?.children[i]
-  if (card) el.scrollTo({ left: card.offsetLeft - el.offsetLeft - 16, behavior: 'smooth' })
+  track.value?.scrollTo({ left: i * stepWidth(), behavior: 'smooth' })
 }
 
-onMounted(() => track.value?.addEventListener('scroll', onScroll, { passive: true }))
+/* ---- Ekrandan chiqqanda videoni to'xtatish ---- */
+let io = null
+onMounted(() => {
+  track.value?.addEventListener('scroll', onScroll, { passive: true })
+  if ('IntersectionObserver' in window && root.value) {
+    io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting && playing.value !== -1) playing.value = -1
+    })
+    io.observe(root.value)
+  }
+})
 onBeforeUnmount(() => {
   track.value?.removeEventListener('scroll', onScroll)
   if (raf) cancelAnimationFrame(raf)
+  io?.disconnect()
 })
 </script>
 
 <template>
-  <div class="vc">
+  <div ref="root" class="vc">
     <div ref="track" class="vtrack">
-      <div
-        v-for="(v, i) in videos"
-        :key="v.id"
-        class="vid"
-        :class="formats[i] === 'short' ? 'vid--short' : 'vid--wide'"
-      >
+      <article v-for="(v, i) in videos" :key="v.id" class="vid">
         <div class="vid__frame">
           <iframe
             v-if="playing === i"
-            :src="embedUrl(v.id)"
+            :src="embedUrl(v)"
             :title="v.title"
-            allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+            allow="autoplay; encrypted-media; picture-in-picture"
             allowfullscreen
             referrerpolicy="strict-origin-when-cross-origin"
           ></iframe>
@@ -110,20 +85,11 @@ onBeforeUnmount(() => {
             :data-cta="`video_play_${i + 1}`"
             type="button"
             class="vid__btn"
-            :aria-label="`${v.title} — кўриш`"
+            :aria-label="`${v.title} — видеони ижро этиш`"
             @click="play(i)"
           >
-            <img
-              :src="thumbs[i]"
-              :alt="v.title"
-              loading="lazy"
-              decoding="async"
-              width="480"
-              height="360"
-              @load="onThumbLoad($event, i)"
-              @error="onThumbError(i)"
-            />
-            <span class="vid__play"><AppIcon name="play" :size="26" /></span>
+            <img :src="thumbUrl(v)" :alt="v.title" loading="lazy" decoding="async" width="480" height="360" />
+            <span class="vid__play"><AppIcon name="play" :size="28" /></span>
           </button>
         </div>
         <div class="vid__meta">
@@ -132,14 +98,14 @@ onBeforeUnmount(() => {
             :id="`video_youtube_${i + 1}`"
             :data-cta="`video_youtube_${i + 1}`"
             class="vid__yt"
-            :href="watchUrl(v, i)"
+            :href="watchUrl(v)"
             target="_blank"
             rel="noopener"
           >
-            <AppIcon name="youtube" :size="16" /> Тўлиқ видеони YouTube'да кўриш
+            <AppIcon name="youtube" :size="16" /> YouTube'да кўриш
           </a>
         </div>
-      </div>
+      </article>
     </div>
 
     <div class="vdots">
@@ -158,7 +124,6 @@ onBeforeUnmount(() => {
 <style scoped>
 .vtrack {
   display: flex;
-  align-items: flex-start;
   gap: 12px;
   overflow-x: auto;
   overscroll-behavior-x: contain;
@@ -177,25 +142,23 @@ onBeforeUnmount(() => {
   flex: 0 0 4px;
 }
 
+/* Karta kengligi ~62%: keyingi video karta chetdan ko'rinib turadi */
 .vid {
-  flex: 0 0 78%;
+  flex: 0 0 62%;
+  max-width: 260px;
   scroll-snap-align: start;
   color: #fff;
-}
-.vid--short {
-  flex-basis: 60%;
 }
 
 .vid__frame {
   position: relative;
-  aspect-ratio: 16 / 9;
-  border-radius: 14px;
+  aspect-ratio: 9 / 16;
+  border-radius: 16px;
   overflow: hidden;
   background: #1c0409;
   border: 2px solid rgba(245, 220, 154, 0.35);
-}
-.vid--short .vid__frame {
-  aspect-ratio: 9 / 16;
+  /* scroll paytida qayta chizishni kamaytiradi */
+  contain: layout paint;
 }
 
 .vid__frame iframe,
@@ -224,9 +187,9 @@ onBeforeUnmount(() => {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 60px;
-  height: 60px;
-  margin: -30px 0 0 -30px;
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -239,7 +202,7 @@ onBeforeUnmount(() => {
   transform: scale(0.92);
 }
 .vid__play svg {
-  margin-left: 3px;
+  margin-left: 4px;
 }
 
 .vid__meta {

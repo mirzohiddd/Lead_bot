@@ -1,7 +1,7 @@
 <script setup>
 // Faqat VITE_TRACKING_CONSENT=required bo'lganda va foydalanuvchi hali javob bermaganda ko'rinadi.
 import { ref } from 'vue'
-import { needsConsentPrompt, setTrackingConsent } from '../utils/tracking.js'
+import { needsConsentPrompt, setTrackingConsent } from '../utils/metaPixel.js'
 
 const visible = ref(needsConsentPrompt())
 
