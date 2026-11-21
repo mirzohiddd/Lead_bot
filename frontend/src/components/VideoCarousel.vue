@@ -2,8 +2,10 @@
 // Inline YouTube player: video aynan bosilgan kartaning o'zida ochiladi (yangi tab yoki modal yo'q).
 // - Sahifa ochilganda hech qanday iframe yuklanmaydi — faqat thumbnail.
 // - Bir vaqtda faqat bitta iframe bor: yangi video ochilsa, oldingisi o'chiriladi (to'xtaydi).
-// - Shorts (vertikal) — 9:16, oddiy video — 16:9. Format avtomatik aniqlanadi yoki content.js da
-//   video uchun format: 'short' | 'video' qilib qo'lda berilishi mumkin.
+// - Shorts (vertikal) — 9:16, oddiy video — 16:9. Format haqiqiy thumbnail bo'yicha aniqlanadi:
+//   Shorts bo'lmagan video hech qachon /shorts/ havolasiga aylantirilmaydi.
+//   content.js da video uchun format: 'short' | 'video' qilib qo'lda ham berish mumkin.
+// - Har bir video ostida «Тўлиқ видеони YouTube'да кўриш» havolasi doim ko'rinadi.
 import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
 import AppIcon from './AppIcon.vue'
 
@@ -127,7 +129,6 @@ onBeforeUnmount(() => {
         <div class="vid__meta">
           <span class="vid__title">{{ v.title }}</span>
           <a
-            v-if="playing === i"
             :id="`video_youtube_${i + 1}`"
             :data-cta="`video_youtube_${i + 1}`"
             class="vid__yt"
@@ -135,7 +136,7 @@ onBeforeUnmount(() => {
             target="_blank"
             rel="noopener"
           >
-            <AppIcon name="youtube" :size="16" /> YouTube'да кўриш
+            <AppIcon name="youtube" :size="16" /> Тўлиқ видеони YouTube'да кўриш
           </a>
         </div>
       </div>

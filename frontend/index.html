@@ -38,7 +38,7 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="./favicon.png" />
 
-    <!-- Fonts and connections -->
+    <!-- Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
 
     <link
@@ -49,17 +49,28 @@
 
     <link rel="preconnect" href="https://i.ytimg.com" />
 
-    <!-- Montserrat — Cyrillic + Latin -->
+    <!-- Montserrat: Cyrillic + Latin -->
+    <!-- Optimized font loading -->
     <link
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&subset=cyrillic,cyrillic-ext,latin&display=swap"
-      rel="stylesheet"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
+
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&subset=cyrillic,cyrillic-ext,latin&display=swap"
+      />
+    </noscript>
 
     <!-- Meta Pixel Code -->
     <script>
       !function(f,b,e,v,n,t,s)
       {
         if(f.fbq)return;
+
         n=f.fbq=function(){
           n.callMethod
             ? n.callMethod.apply(n,arguments)
@@ -90,7 +101,7 @@
       // Meta Pixel ID
       var gpPixelId = '1556385933212613';
 
-      // Avtomatik event aniqlashni o‘chirish
+      // Avtomatik event aniqlashni o'chirish
       // CTA hodisalari Vue orqali boshqariladi
       fbq('set', 'autoConfig', false, gpPixelId);
 
@@ -108,7 +119,7 @@
         gpConsent = null;
       }
 
-      // Rozilik talab qilinganda Pixel trackingni bloklash
+      // Rozilik talab qilinganda trackingni bloklash
       if (gpNeedConsent && gpConsent !== 'granted') {
         fbq('consent', 'revoke');
       }
@@ -122,6 +133,7 @@
         !window.__gpPageViewSent
       ) {
         fbq('track', 'PageView');
+
         window.__gpPageViewSent = true;
       }
     </script>

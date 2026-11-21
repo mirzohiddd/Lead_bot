@@ -180,7 +180,7 @@ async function submit() {
       :disabled="loading"
     >
       <span v-if="loading" class="spin" aria-hidden="true"></span>
-      {{ loading ? 'Юборилмоқда...' : 'Аризани юбориш' }}
+      {{ loading ? 'Юборилмоқда...' : 'Буюртма бериш' }}
     </button>
     <p v-if="loading && slow" class="oform__slow" role="status">Сервер уланмоқда, илтимос, саҳифани ёпманг...</p>
   </form>

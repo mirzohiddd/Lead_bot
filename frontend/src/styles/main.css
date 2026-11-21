@@ -219,7 +219,8 @@ p {
   inset: 0;
   background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.35) 50%, transparent 65%);
   transform: translateX(-120%);
-  animation: shine 3s ease-in-out infinite;
+  /* Cheksiz emas: 4 marta yaltiraydi va to'xtaydi (CPU/batareyani tejash) */
+  animation: shine 3s ease-in-out 1s 4;
 }
 
 .btn--gold {
@@ -240,7 +241,8 @@ p {
 }
 
 .pulse {
-  animation: pulse 2s ease-in-out infinite;
+  /* Cheksiz emas: 5 marta va to'xtaydi */
+  animation: pulse 2s ease-in-out 5;
 }
 
 @keyframes shine {

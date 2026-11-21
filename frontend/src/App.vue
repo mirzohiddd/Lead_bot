@@ -107,7 +107,7 @@ const year = new Date().getFullYear()
           >
             {{ C.hero.ctaPrimary }} <AppIcon name="arrowRight" :size="18" :stroke="2.4" />
           </button>
-          <button id="cta_hero_details" data-cta="cta_hero_details" class="btn btn--outline btn--full" type="button" @click="goTo('xavf')">
+          <button id="cta_hero_product" data-cta="cta_hero_product" class="btn btn--outline btn--full" type="button" @click="goTo('mahsulot')">
             {{ C.hero.ctaSecondary }}
           </button>
         </div>
@@ -174,13 +174,13 @@ const year = new Date().getFullYear()
           <p>{{ checkedCount ? C.symptoms.resultSome : C.symptoms.resultNone }}</p>
           <button
             v-if="checkedCount"
-            id="cta_symptoms_consultation"
-            data-cta="cta_symptoms_consultation"
+            id="cta_symptoms_specialist"
+            data-cta="cta_symptoms_specialist"
             class="btn btn--primary btn--full"
             type="button"
             @click="toForm"
           >
-            Бепул маслаҳат олиш
+            Мутахассис билан боғланиш
           </button>
         </div>
 
@@ -250,8 +250,8 @@ const year = new Date().getFullYear()
           </div>
         </div>
 
-        <button id="cta_products" data-cta="cta_products" class="btn btn--primary btn--full mt" type="button" @click="toForm">
-          Маҳсулотга буюртма бериш
+        <button id="cta_products_details" data-cta="cta_products_details" class="btn btn--primary btn--full mt" type="button" @click="toForm">
+          Батафсил маълумот олиш
         </button>
       </section>
 
@@ -353,7 +353,7 @@ const year = new Date().getFullYear()
             <button
               id="cta_final_order"
               data-cta="cta_final_order"
-              class="btn btn--gold btn--full pulse"
+              class="btn btn--gold btn--full"
               type="button"
               @click="toForm"
             >
@@ -398,7 +398,9 @@ const year = new Date().getFullYear()
         <a id="cta_sticky_call" data-cta="cta_sticky_call" :href="C.contacts.phoneHref" class="sticky__call" aria-label="Қўнғироқ қилиш">
           <AppIcon name="phone" :size="20" />
         </a>
-        <button id="cta_sticky_order" data-cta="cta_sticky_order" class="btn btn--primary" type="button" @click="toForm">Буюртма бериш</button>
+        <button id="cta_sticky_consultation" data-cta="cta_sticky_consultation" class="btn btn--primary" type="button" @click="toForm">
+          Маслаҳатга ёзилиш
+        </button>
       </div>
     </Transition>
 
@@ -537,10 +539,7 @@ const year = new Date().getFullYear()
   border-radius: 14px;
   border: 3px solid #fff;
   box-shadow: var(--shadow-pop);
-  animation: float 5s ease-in-out infinite;
-}
-.hero__thumbs img:last-child {
-  animation-delay: -2.5s;
+  /* Cheksiz "float" animatsiyasi olib tashlandi — arzon telefonlarda doimiy qayta chizish */
 }
 .hero__chip {
   position: absolute;
