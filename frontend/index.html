@@ -3,7 +3,11 @@
 <html lang="uz-Cyrl">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
 
     <title>GEPOMER — Табиий куч, соғлом жигар</title>
 
@@ -14,19 +18,38 @@
 
     <meta name="theme-color" content="#4a0b18" />
 
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="uz_UZ" />
     <meta property="og:site_name" content="GEPOMER" />
-    <meta property="og:title" content="GEPOMER — Табиий куч, соғлом жигар" />
-    <meta property="og:description" content="Жигарингизга ғамхўрлик қилинг. Бепул маслаҳат олинг." />
+
+    <meta
+      property="og:title"
+      content="GEPOMER — Табиий куч, соғлом жигар"
+    />
+
+    <meta
+      property="og:description"
+      content="Жигарингизга ғамхўрлик қилинг. Бепул маслаҳат олинг."
+    />
+
     <meta property="og:image" content="./og.jpg" />
 
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="./favicon.png" />
 
+    <!-- Fonts and connections -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+
     <link rel="preconnect" href="https://i.ytimg.com" />
 
+    <!-- Montserrat — Cyrillic + Latin -->
     <link
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&subset=cyrillic,cyrillic-ext,latin&display=swap"
       rel="stylesheet"
@@ -35,35 +58,84 @@
     <!-- Meta Pixel Code -->
     <script>
       !function(f,b,e,v,n,t,s)
-      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)}(window, document,'script',
-      'https://connect.facebook.net/en_US/fbevents.js');
+      {
+        if(f.fbq)return;
+        n=f.fbq=function(){
+          n.callMethod
+            ? n.callMethod.apply(n,arguments)
+            : n.queue.push(arguments)
+        };
 
-      fbq('init', '1556385933212613');
-      fbq('track', 'PageView');
+        if(!f._fbq)f._fbq=n;
+
+        n.push=n;
+        n.loaded=!0;
+        n.version='2.0';
+        n.queue=[];
+
+        t=b.createElement(e);
+        t.async=!0;
+        t.src=v;
+
+        s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s);
+
+      }(
+        window,
+        document,
+        'script',
+        'https://connect.facebook.net/en_US/fbevents.js'
+      );
+
+      // Meta Pixel ID
+      var gpPixelId = '1556385933212613';
+
+      // Avtomatik event aniqlashni o‘chirish
+      // CTA hodisalari Vue orqali boshqariladi
+      fbq('set', 'autoConfig', false, gpPixelId);
+
+      // Tracking roziligini tekshirish
+      var gpNeedConsent =
+        '%VITE_TRACKING_CONSENT%' === 'required';
+
+      var gpConsent = null;
+
+      try {
+        gpConsent = localStorage.getItem(
+          'gp_tracking_consent'
+        );
+      } catch (e) {
+        gpConsent = null;
+      }
+
+      // Rozilik talab qilinganda Pixel trackingni bloklash
+      if (gpNeedConsent && gpConsent !== 'granted') {
+        fbq('consent', 'revoke');
+      }
+
+      // Meta Pixel initialization
+      fbq('init', gpPixelId);
+
+      // PageView faqat bir marta yuboriladi
+      if (
+        (!gpNeedConsent || gpConsent === 'granted') &&
+        !window.__gpPageViewSent
+      ) {
+        fbq('track', 'PageView');
+        window.__gpPageViewSent = true;
+      }
     </script>
     <!-- End Meta Pixel Code -->
+
   </head>
 
   <body>
-    <!-- Meta Pixel NoScript -->
-    <noscript>
-      <img
-        height="1"
-        width="1"
-        style="display:none"
-        src="https://www.facebook.com/tr?id=1556385933212613&amp;ev=PageView&amp;noscript=1"
-        alt=""
-      />
-    </noscript>
-    <!-- End Meta Pixel NoScript -->
 
+    <!-- Vue Application -->
     <div id="app"></div>
 
+    <!-- Vue Main Script -->
     <script type="module" src="/src/main.js"></script>
+
   </body>
 </html>

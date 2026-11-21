@@ -4,6 +4,7 @@ import AppIcon from './AppIcon.vue'
 import { validateName, validatePhone } from '../utils/form.js'
 import { createOrder, newIdempotencyKey, ApiError } from '../api/orders.js'
 import { getUtm } from '../utils/utm.js'
+import { trackLead } from '../utils/tracking.js'
 
 const props = defineProps({
   // Agar sahifada mahsulot tanlash bo'lsa: 'complex' | 'paste' | 'syrup'
@@ -15,6 +16,8 @@ const form = reactive({ name: "", phone: "", consent: false, marketing: false, w
 const errors = reactive({ name: '', phone: '', consent: '' })
 const touched = reactive({ name: false, phone: false })
 const loading = ref(false)
+const slow = ref(false) // server uyg'onayotgan bo'lsa (Render cold start) — mijozga tushuntiramiz
+let slowTimer = null
 const serverError = ref('')
 
 // Bitta ariza uchun bitta kalit: tugma qayta bosilsa yoki tarmoq xatosidan keyin qayta yuborilsa,
@@ -61,9 +64,11 @@ async function submit() {
   }
 
   loading.value = true
+  slow.value = false
+  slowTimer = setTimeout(() => (slow.value = true), 7000)
   const name = form.name.trim()
   try {
-    await createOrder(
+    const response = await createOrder(
       {
         name,
         phone: '+998' + digits(),
@@ -76,7 +81,8 @@ async function submit() {
       },
       idemKey
     )
-    window.fbq?.('track', 'Lead')
+    // Lead — faqat backend yangi buyurtmani qabul qilganda va har bir buyurtma uchun bir marta
+    trackLead(response)
     emit('success', name)
     form.name = ''
     form.phone = ''
@@ -95,7 +101,9 @@ async function submit() {
       serverError.value = err.message || 'Хатолик юз берди. Қайта уриниб кўринг.'
     }
   } finally {
+    clearTimeout(slowTimer)
     loading.value = false
+    slow.value = false
   }
 }
 </script>
@@ -164,10 +172,17 @@ async function submit() {
       <span>{{ serverError }}</span>
     </p>
 
-    <button type="submit" class="btn btn--primary btn--full oform__btn" :disabled="loading">
+    <button
+      id="submit_order"
+      data-cta="submit_order"
+      type="submit"
+      class="btn btn--primary btn--full oform__btn"
+      :disabled="loading"
+    >
       <span v-if="loading" class="spin" aria-hidden="true"></span>
-      {{ loading ? 'Юборилмоқда...' : 'Буюртма бериш' }}
+      {{ loading ? 'Юборилмоқда...' : 'Аризани юбориш' }}
     </button>
+    <p v-if="loading && slow" class="oform__slow" role="status">Сервер уланмоқда, илтимос, саҳифани ёпманг...</p>
   </form>
 </template>
 
@@ -298,6 +313,13 @@ async function submit() {
 
 .oform__field input:disabled {
   opacity: 0.7;
+}
+
+.oform__slow {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 15px;
+  color: var(--text-2);
 }
 
 .oform__btn {

@@ -88,6 +88,7 @@ p {
 /* Desktopda ham mobil sahifa markazda */
 .page {
   position: relative;
+  overflow-x: hidden; /* eski brauzerlar uchun zaxira */
   max-width: var(--page-w);
   margin: 0 auto;
   background: var(--cream);
@@ -211,7 +212,8 @@ p {
   box-shadow: 0 8px 20px -6px rgba(122, 21, 40, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-.btn--primary::after {
+/* Yaltiroq effekt faqat asosiy (pulse) tugmada — ko'p cheksiz animatsiya arzon telefonlarni sekinlashtiradi */
+.btn--primary.pulse::after {
   content: '';
   position: absolute;
   inset: 0;

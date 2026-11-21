@@ -5,6 +5,8 @@ import ProductArt from './components/ProductArt.vue'
 import AccordionList from './components/AccordionList.vue'
 import OrderForm from './components/OrderForm.vue'
 import BaseModal from './components/BaseModal.vue'
+import VideoCarousel from './components/VideoCarousel.vue'
+import ConsentBar from './components/ConsentBar.vue'
 import logo from './assets/gepomer-logo.webp'
 import * as C from './data/content.js'
 
@@ -21,53 +23,34 @@ const toForm = () => goTo('forma')
 const checked = ref([])
 const checkedCount = computed(() => checked.value.length)
 
-/* ---------- Video ---------- */
-const video = reactive({ open: false, id: '', title: '' })
-const openVideo = (v) => Object.assign(video, { open: true, id: v.id, title: v.title })
-const videoSrc = computed(
-  () => `https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&rel=0&playsinline=1&modestbranding=1`
-)
-const track = ref(null)
-const activeVideo = ref(0)
-function onTrackScroll() {
-  const el = track.value
-  if (!el) return
-  const card = el.querySelector('.vid')
-  const step = card ? card.offsetWidth + 12 : 260
-  activeVideo.value = Math.min(C.videos.length - 1, Math.round(el.scrollLeft / step))
-}
-function scrollVideos(i) {
-  const el = track.value
-  const card = el?.querySelector('.vid')
-  if (card) el.scrollTo({ left: i * (card.offsetWidth + 12), behavior: 'smooth' })
-}
-
 /* ---------- Muvaffaqiyat ---------- */
 const success = reactive({ open: false, name: '' })
 const onSuccess = (name) => Object.assign(success, { open: true, name })
 
-/* ---------- Pastki sticky CTA ---------- */
+/* ---------- Pastki sticky CTA ----------
+   Scroll listener o'rniga IntersectionObserver: hero ko'rinmay qolganda chiqadi,
+   buyurtma formasi ekranda bo'lsa yashirinadi. Scroll paytida JS ishlamaydi. */
 const showSticky = ref(false)
+let heroVisible = true
 let formVisible = false
 let io
-function updateSticky() {
-  showSticky.value = window.scrollY > 600 && !formVisible
-}
 onMounted(() => {
-  window.addEventListener('scroll', updateSticky, { passive: true })
+  const hero = document.querySelector('.hero')
+  const form = document.getElementById('forma')
   io = new IntersectionObserver(
-    ([e]) => {
-      formVisible = e.isIntersecting
-      updateSticky()
+    (entries) => {
+      for (const e of entries) {
+        if (e.target === hero) heroVisible = e.isIntersecting
+        if (e.target === form) formVisible = e.isIntersecting
+      }
+      showSticky.value = !heroVisible && !formVisible
     },
-    { threshold: 0.1 }
+    { threshold: 0 }
   )
-  io.observe(document.getElementById('forma'))
+  if (hero) io.observe(hero)
+  if (form) io.observe(form)
 })
-onBeforeUnmount(() => {
-  window.removeEventListener('scroll', updateSticky)
-  io?.disconnect()
-})
+onBeforeUnmount(() => io?.disconnect())
 
 const year = new Date().getFullYear()
 </script>
@@ -83,7 +66,7 @@ const year = new Date().getFullYear()
 
     <header class="head">
       <img :src="logo" alt="GEPOMER" width="140" height="34" />
-      <a :href="C.contacts.phoneHref" class="head__call" aria-label="Қўнғироқ қилиш">
+      <a id="cta_header_call" data-cta="cta_header_call" :href="C.contacts.phoneHref" class="head__call" aria-label="Қўнғироқ қилиш">
         <AppIcon name="phone" :size="18" />
       </a>
     </header>
@@ -115,10 +98,16 @@ const year = new Date().getFullYear()
         <p class="hero__text2">{{ C.hero.text2 }}</p>
 
         <div class="hero__btns">
-          <button class="btn btn--primary btn--full pulse" type="button" @click="toForm">
+          <button
+            id="cta_hero_consultation"
+            data-cta="cta_hero_consultation"
+            class="btn btn--primary btn--full pulse"
+            type="button"
+            @click="toForm"
+          >
             {{ C.hero.ctaPrimary }} <AppIcon name="arrowRight" :size="18" :stroke="2.4" />
           </button>
-          <button class="btn btn--outline btn--full" type="button" @click="goTo('xavf')">
+          <button id="cta_hero_details" data-cta="cta_hero_details" class="btn btn--outline btn--full" type="button" @click="goTo('xavf')">
             {{ C.hero.ctaSecondary }}
           </button>
         </div>
@@ -183,7 +172,14 @@ const year = new Date().getFullYear()
             <strong>{{ checkedCount }}</strong> / {{ C.symptoms.items.length }}
           </div>
           <p>{{ checkedCount ? C.symptoms.resultSome : C.symptoms.resultNone }}</p>
-          <button v-if="checkedCount" class="btn btn--primary btn--full" type="button" @click="toForm">
+          <button
+            v-if="checkedCount"
+            id="cta_symptoms_consultation"
+            data-cta="cta_symptoms_consultation"
+            class="btn btn--primary btn--full"
+            type="button"
+            @click="toForm"
+          >
             Бепул маслаҳат олиш
           </button>
         </div>
@@ -254,7 +250,9 @@ const year = new Date().getFullYear()
           </div>
         </div>
 
-        <button class="btn btn--primary btn--full mt" type="button" @click="toForm">Буюртма бериш</button>
+        <button id="cta_products" data-cta="cta_products" class="btn btn--primary btn--full mt" type="button" @click="toForm">
+          Маҳсулотга буюртма бериш
+        </button>
       </section>
 
       <!-- ===== 7. KIMLAR UCHUN + QO'LLASH ===== -->
@@ -283,32 +281,7 @@ const year = new Date().getFullYear()
       <section id="videolar" class="sec sec--dark sec--videos">
         <h2 class="sec__title" v-reveal>Видео <em>шарҳлар</em></h2>
         <p class="sec__lead">Видеони кўриш учун устига босинг</p>
-        <div ref="track" class="vtrack" @scroll.passive="onTrackScroll">
-          <button
-            v-for="v in C.videos"
-            :key="v.id"
-            type="button"
-            class="vid"
-            :aria-label="`${v.title} — кўриш`"
-            @click="openVideo(v)"
-          >
-            <span class="vid__thumb">
-              <img :src="`https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`" :alt="v.title" loading="lazy" width="480" height="360" />
-              <span class="vid__play"><AppIcon name="play" :size="26" /></span>
-            </span>
-            <span class="vid__title">{{ v.title }}</span>
-          </button>
-        </div>
-        <div class="vdots">
-          <button
-            v-for="(v, i) in C.videos"
-            :key="v.id"
-            type="button"
-            :class="{ on: activeVideo === i }"
-            :aria-label="`${i + 1}-видео`"
-            @click="scrollVideos(i)"
-          ></button>
-        </div>
+        <VideoCarousel :videos="C.videos" />
       </section>
 
       <!-- ===== 9. BUYURTMA FORMASI ===== -->
@@ -353,7 +326,9 @@ const year = new Date().getFullYear()
           </article>
         </div>
         <p class="reviews__note">{{ C.reviews.note }}</p>
-        <button class="btn btn--outline btn--full" type="button" @click="goTo('videolar')">Видео шарҳларни кўриш</button>
+        <button id="cta_reviews" data-cta="cta_reviews" class="btn btn--outline btn--full" type="button" @click="goTo('videolar')">
+          Видео шарҳларни кўриш
+        </button>
       </section>
 
       <!-- ===== 10b. FAQ ===== -->
@@ -375,7 +350,15 @@ const year = new Date().getFullYear()
             <AppIcon name="heart" :size="28" class="final__heart" />
             <h2>{{ C.finalCta.title }}</h2>
             <p>{{ C.finalCta.text }}</p>
-            <button class="btn btn--gold btn--full pulse" type="button" @click="toForm">{{ C.finalCta.button }}</button>
+            <button
+              id="cta_final_order"
+              data-cta="cta_final_order"
+              class="btn btn--gold btn--full pulse"
+              type="button"
+              @click="toForm"
+            >
+              {{ C.finalCta.button }}
+            </button>
           </div>
         </div>
         <p class="disclaimer"><AppIcon name="info" :size="16" /> {{ C.disclaimer }}</p>
@@ -392,13 +375,13 @@ const year = new Date().getFullYear()
         <a href="#faq" @click.prevent="goTo('faq')">Саволлар</a>
       </nav>
       <div class="foot__soc">
-        <a :href="C.contacts.phoneHref"><AppIcon name="phone" :size="16" /> {{ C.contacts.phone }}</a>
-        <a :href="C.contacts.telegram" target="_blank" rel="noopener"><AppIcon name="telegram" :size="16" /> t.me/jigar_kasalligi</a>
-        <a :href="C.contacts.instagram" target="_blank" rel="noopener"><AppIcon name="instagram" :size="16" /> {{ C.contacts.instagramHandle }}</a>
+        <a id="cta_footer_call" data-cta="cta_footer_call" :href="C.contacts.phoneHref"><AppIcon name="phone" :size="16" /> {{ C.contacts.phone }}</a>
+        <a id="cta_footer_telegram" data-cta="cta_footer_telegram" :href="C.contacts.telegram" target="_blank" rel="noopener"><AppIcon name="telegram" :size="16" /> t.me/jigar_kasalligi</a>
+        <a id="cta_footer_instagram" data-cta="cta_footer_instagram" :href="C.contacts.instagram" target="_blank" rel="noopener"><AppIcon name="instagram" :size="16" /> {{ C.contacts.instagramHandle }}</a>
         <div>
-          <a :href="C.contacts.telegram" target="_blank" rel="noopener" aria-label="Telegram"><AppIcon name="telegram" :size="20" /></a>
-          <a :href="C.contacts.instagram" target="_blank" rel="noopener" aria-label="Instagram"><AppIcon name="instagram" :size="20" /></a>
-          <a :href="C.contacts.youtube" target="_blank" rel="noopener" aria-label="YouTube"><AppIcon name="youtube" :size="20" /></a>
+          <a id="cta_footer_telegram_icon" data-cta="cta_footer_telegram_icon" :href="C.contacts.telegram" target="_blank" rel="noopener" aria-label="Telegram"><AppIcon name="telegram" :size="20" /></a>
+          <a id="cta_footer_instagram_icon" data-cta="cta_footer_instagram_icon" :href="C.contacts.instagram" target="_blank" rel="noopener" aria-label="Instagram"><AppIcon name="instagram" :size="20" /></a>
+          <a id="cta_footer_youtube_icon" data-cta="cta_footer_youtube_icon" :href="C.contacts.youtube" target="_blank" rel="noopener" aria-label="YouTube"><AppIcon name="youtube" :size="20" /></a>
         </div>
       </div>
       <details class="foot__src">
@@ -412,30 +395,23 @@ const year = new Date().getFullYear()
     <!-- ===== Pastki sticky CTA ===== -->
     <Transition name="sticky">
       <div v-show="showSticky" class="sticky">
-        <a :href="C.contacts.phoneHref" class="sticky__call" aria-label="Қўнғироқ қилиш"><AppIcon name="phone" :size="20" /></a>
-        <button class="btn btn--primary" type="button" @click="toForm">Буюртма бериш</button>
+        <a id="cta_sticky_call" data-cta="cta_sticky_call" :href="C.contacts.phoneHref" class="sticky__call" aria-label="Қўнғироқ қилиш">
+          <AppIcon name="phone" :size="20" />
+        </a>
+        <button id="cta_sticky_order" data-cta="cta_sticky_order" class="btn btn--primary" type="button" @click="toForm">Буюртма бериш</button>
       </div>
     </Transition>
 
+    <ConsentBar />
+
     <!-- ===== Modallar ===== -->
-    <BaseModal :open="video.open" :label="video.title" size="video" @close="video.open = false">
-      <div class="vframe">
-        <iframe
-          v-if="video.open"
-          :src="videoSrc"
-          :title="video.title"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen
-        ></iframe>
-      </div>
-    </BaseModal>
 
     <BaseModal :open="success.open" label="Ариза қабул қилинди" @close="success.open = false">
       <div class="ok">
         <div class="ok__icon"><AppIcon name="check" :size="44" :stroke="2.2" /></div>
         <h2>Раҳмат, {{ success.name }}!</h2>
         <p>Аризангиз қабул қилинди! Тез орада сиз билан боғланамиз.</p>
-        <button class="btn btn--primary btn--full" type="button" @click="success.open = false">Яхши</button>
+        <button id="success_close" class="btn btn--primary btn--full" type="button" @click="success.open = false">Яхши</button>
       </div>
     </BaseModal>
   </div>
@@ -1093,100 +1069,6 @@ const year = new Date().getFullYear()
 .sec--videos .sec__lead {
   padding: 0 var(--pad);
 }
-.vtrack {
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  padding: 4px var(--pad) 10px;
-  scroll-padding: 0 var(--pad);
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-.vtrack::-webkit-scrollbar {
-  display: none;
-}
-.vtrack::after {
-  content: '';
-  flex: 0 0 4px;
-}
-.vid {
-  flex: 0 0 72%;
-  scroll-snap-align: start;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: #fff;
-  text-align: left;
-}
-.vid__thumb {
-  position: relative;
-  display: block;
-  aspect-ratio: 16 / 10;
-  border-radius: 14px;
-  overflow: hidden;
-  background: #1c0409;
-  border: 2px solid rgba(245, 220, 154, 0.35);
-}
-.vid__thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.vid__play {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 56px;
-  height: 56px;
-  margin: -28px 0 0 -28px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: var(--grad-gold);
-  color: var(--bordo-deep);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
-}
-.vid__play svg {
-  margin-left: 3px;
-}
-.vid__title {
-  display: block;
-  margin-top: 8px;
-  font-weight: 700;
-  font-size: 16px;
-}
-.vdots {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  margin-top: 8px;
-}
-.vdots button {
-  width: 8px;
-  height: 8px;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.3);
-  transition: width 0.3s, background 0.3s;
-}
-.vdots button.on {
-  width: 24px;
-  background: var(--gold-light);
-}
-.vframe {
-  position: relative;
-  aspect-ratio: 16 / 9;
-}
-.vframe iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
 /* ---- Buyurtma ---- */
 .order {
   background: linear-gradient(180deg, var(--cream) 0%, var(--cream-2) 100%);
@@ -1449,9 +1331,8 @@ const year = new Date().getFullYear()
   display: flex;
   gap: 10px;
   padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  /* backdrop-filter olib tashlandi: arzon Android telefonlarda scroll paytida qotishga sabab bo'ladi */
+  background: #fff;
   border-top: 1px solid var(--line);
   box-shadow: 0 -8px 24px rgba(44, 6, 16, 0.12);
 }

@@ -10,6 +10,21 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Backendni oldindan "uyg'otadi". Render bepul tarifida server uxlab qolsa, birinchi so'rov
+ * 30–60 soniya kechikadi. Sahifa ochilganda yengil /api/health so'rovi yuboramiz — mijoz
+ * formaga yetguncha server tayyor bo'ladi. Javob kutilmaydi, xato bo'lsa e'tiborsiz qoldiriladi.
+ */
+export function warmUpBackend() {
+  try {
+    const run = () => fetch(`${API_URL}/api/health`, { method: 'GET', mode: 'no-cors', cache: 'no-store' }).catch(() => {})
+    if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 3000 })
+    else setTimeout(run, 1500)
+  } catch {
+    /* e'tiborsiz */
+  }
+}
+
 export function newIdempotencyKey() {
   if (globalThis.crypto?.randomUUID) return crypto.randomUUID()
   return Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2)
@@ -22,7 +37,8 @@ export function newIdempotencyKey() {
  */
 export async function createOrder(payload, idempotencyKey) {
   const ctrl = new AbortController()
-  const timer = setTimeout(() => ctrl.abort(), 20000)
+  // Uxlab qolgan server uyg'onishi uchun yetarli vaqt (Render ~30–60 s)
+  const timer = setTimeout(() => ctrl.abort(), 65000)
   let res
   try {
     res = await fetch(`${API_URL}/api/orders`, {
