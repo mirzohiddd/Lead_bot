@@ -4,7 +4,8 @@ import cors from 'cors'
 import rateLimit from 'express-rate-limit'
 import { config, checkConfig } from './config/env.js'
 import ordersRouter from './routes/orders.js'
-import { initStore, flush } from './services/orderStore.js'
+import { initStore, flush, closeStore } from './services/orderStore.js'
+import { PRODUCTS, groupIdFor, originsFor } from './config/products.js'
 import { startRetryWorker, stopRetryWorker, checkBot } from './services/telegramService.js'
 
 const app = express()
@@ -16,6 +17,8 @@ app.use(helmet())
 
 app.use(
   cors({
+    // Uchala mahsulot domenlarining birlashmasi (FRONTEND_URL, DERMOLIFE_FRONTEND_URL, HALILA_FRONTEND_URL).
+    // Hech qachon "*" emas. Qaysi domen qaysi mahsulotga tegishliligi controller'da alohida tekshiriladi.
     origin(origin, cb) {
       // Origin yo'q (curl, server-to-server) — CORS kerak emas, lekin brauzer so'rovlari tekshiriladi
       if (!origin) return cb(null, true)
@@ -69,8 +72,17 @@ async function main() {
   const problems = checkConfig()
   problems.forEach((p) => console.warn(`[config] ⚠️  ${p}`))
 
-  const { total, recovered } = await initStore(config.ordersFile)
-  console.info(`[store] ${total} ta buyurtma yuklandi${recovered ? `, ${recovered} ta qayta yuborishga qo'yildi` : ''}`)
+  const { total, recovered, kind } = await initStore()
+  console.info(
+    `[store] ${kind === 'postgres' ? 'PostgreSQL' : 'JSON fayl'}: ${total} ta buyurtma${recovered ? `, ${recovered} ta qayta yuborishga qo'yildi` : ''}`
+  )
+
+  // Mahsulotlar holati (guruh ID va domen qiymatlari logga chiqarilmaydi — faqat bor/yo'q)
+  for (const p of Object.values(PRODUCTS)) {
+    console.info(
+      `[products] ${p.code.padEnd(9)} ${p.idPrefix}-…  guruh: ${groupIdFor(p.code) ? 'sozlangan' : "YO'Q"}  domenlar: ${originsFor(p.code).length}`
+    )
+  }
 
   const botName = await checkBot()
   if (botName) console.info(`[telegram] bot ulandi: @${botName}`)
@@ -88,6 +100,7 @@ async function main() {
     stopRetryWorker()
     server.close(async () => {
       await flush()
+      await closeStore()
       process.exit(0)
     })
     setTimeout(() => process.exit(1), 10_000).unref()

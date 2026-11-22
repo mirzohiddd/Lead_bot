@@ -17,8 +17,41 @@ const bool = (name, fallback = false) => {
   if (!v) return fallback
   return ['1', 'true', 'yes', 'on'].includes(v)
 }
+const list = (name) =>
+  str(name)
+    .split(',')
+    .map((s) => s.trim().replace(/\/+$/, ''))
+    .filter(Boolean)
 
-const isPlaceholder = (v) => !v || /^your_/.test(v) || v === '-1001234567890'
+export const isPlaceholder = (v) =>
+  !v || /^your_/.test(v) || ['-1001234567890', '-1001111111111', '-1002222222222', '-1003333333333'].includes(v)
+
+/* ------------------------------------------------------------------
+ * Har bir mahsulotning Telegram guruhi va frontend domen(lar)i.
+ * GEPOMER: TELEGRAM_GEPOMER_GROUP_ID bo'lmasa, eski TELEGRAM_GROUP_ID ishlatiladi (zaxira).
+ * DERMOLIFE / HALILA: faqat o'z guruhi. Sozlanmagan bo'lsa — boshqa guruhga YUBORILMAYDI.
+ * ------------------------------------------------------------------ */
+const gepomerGroup = isPlaceholder(str('TELEGRAM_GEPOMER_GROUP_ID'))
+  ? str('TELEGRAM_GROUP_ID')
+  : str('TELEGRAM_GEPOMER_GROUP_ID')
+
+const productEnv = {
+  gepomer: {
+    groupId: isPlaceholder(gepomerGroup) ? '' : gepomerGroup,
+    groupEnv: 'TELEGRAM_GEPOMER_GROUP_ID (yoki zaxira TELEGRAM_GROUP_ID)',
+    origins: list('FRONTEND_URL')
+  },
+  dermolife: {
+    groupId: isPlaceholder(str('TELEGRAM_DERMOLIFE_GROUP_ID')) ? '' : str('TELEGRAM_DERMOLIFE_GROUP_ID'),
+    groupEnv: 'TELEGRAM_DERMOLIFE_GROUP_ID',
+    origins: list('DERMOLIFE_FRONTEND_URL')
+  },
+  halila: {
+    groupId: isPlaceholder(str('TELEGRAM_HALILA_GROUP_ID')) ? '' : str('TELEGRAM_HALILA_GROUP_ID'),
+    groupEnv: 'TELEGRAM_HALILA_GROUP_ID',
+    origins: list('HALILA_FRONTEND_URL')
+  }
+}
 
 export const config = {
   nodeEnv: str('NODE_ENV', 'development'),
@@ -26,19 +59,22 @@ export const config = {
   port: int('PORT', 3000),
   trustProxy: int('TRUST_PROXY', 0),
 
-  frontendOrigins: str('FRONTEND_URL', 'http://localhost:5173')
-    .split(',')
-    .map((s) => s.trim().replace(/\/+$/, ''))
-    .filter(Boolean),
+  productEnv,
+  // CORS: uchala mahsulot domenlarining birlashmasi (hech qachon "*")
+  frontendOrigins: [...new Set(Object.values(productEnv).flatMap((p) => p.origins))],
+  // true bo'lsa, Origin sarlavhasisiz (curl, server-to-server) POST so'rovlari rad etiladi
+  requireOrigin: bool('REQUIRE_ORIGIN', false),
 
   rateLimitMax: int('RATE_LIMIT_MAX', 10),
   dedupWindowMs: int('DEDUP_WINDOW_MINUTES', 5) * 60 * 1000,
 
+  // Ombor: DATABASE_URL berilsa — PostgreSQL, aks holda JSON fayl
+  databaseUrl: str('DATABASE_URL'),
+  databaseSsl: str('DATABASE_SSL', 'auto'), // auto | true | false
   ordersFile: path.resolve(ROOT_DIR, str('ORDERS_FILE', 'data/orders.json')),
 
   telegram: {
     token: str('TELEGRAM_BOT_TOKEN'),
-    groupId: str('TELEGRAM_GROUP_ID'),
     adminId: str('TELEGRAM_ADMIN_ID'),
     notifyAdmin: bool('TELEGRAM_NOTIFY_ADMIN', false),
     retryIntervalMs: Math.max(10, int('TELEGRAM_RETRY_INTERVAL_SECONDS', 60)) * 1000,
@@ -49,18 +85,22 @@ export const config = {
   }
 }
 
-/** Ishga tushishda konfiguratsiyani tekshiradi; muammolar ro'yxatini qaytaradi */
+/** Ishga tushishda konfiguratsiyani tekshiradi; muammolar ro'yxatini qaytaradi (ID qiymatlari logga chiqmaydi) */
 export function checkConfig() {
   const problems = []
   const t = config.telegram
-  if (isPlaceholder(t.token)) problems.push('TELEGRAM_BOT_TOKEN to\'ldirilmagan')
-  if (isPlaceholder(t.groupId)) problems.push('TELEGRAM_GROUP_ID to\'ldirilmagan')
-  if (t.notifyAdmin && isPlaceholder(t.adminId)) {
-    problems.push('TELEGRAM_NOTIFY_ADMIN=true, lekin TELEGRAM_ADMIN_ID to\'ldirilmagan')
+  if (isPlaceholder(t.token)) problems.push("TELEGRAM_BOT_TOKEN to'ldirilmagan")
+  for (const [code, p] of Object.entries(productEnv)) {
+    if (!p.groupId) problems.push(`${code}: Telegram guruh ID sozlanmagan (${p.groupEnv}) — buyurtmalar pending holatda saqlanadi`)
+    if (!p.origins.length) problems.push(`${code}: frontend domeni sozlanmagan — brauzerdan buyurtma qabul qilinmaydi`)
   }
-  if (!config.frontendOrigins.length) problems.push('FRONTEND_URL bo\'sh')
+  if (t.notifyAdmin && isPlaceholder(t.adminId)) {
+    problems.push("TELEGRAM_NOTIFY_ADMIN=true, lekin TELEGRAM_ADMIN_ID to'ldirilmagan")
+  }
+  if (!config.databaseUrl && config.isProd) {
+    problems.push("DATABASE_URL yo'q — buyurtmalar JSON faylda saqlanadi (Render'da qayta deploy'da yo'qolishi mumkin)")
+  }
   return problems
 }
 
-export const telegramReady = () =>
-  !isPlaceholder(config.telegram.token) && !isPlaceholder(config.telegram.groupId)
+export const telegramReady = () => !isPlaceholder(config.telegram.token)

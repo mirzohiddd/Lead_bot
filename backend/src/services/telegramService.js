@@ -1,7 +1,13 @@
+// Telegram: bitta bot — har bir mahsulot o'z guruhiga.
+//  • gepomer   → TELEGRAM_GEPOMER_GROUP_ID (bo'lmasa zaxira: TELEGRAM_GROUP_ID)
+//  • dermolife → TELEGRAM_DERMOLIFE_GROUP_ID
+//  • halila    → TELEGRAM_HALILA_GROUP_ID
+// Guruh sozlanmagan bo'lsa — buyurtma BOSHQA guruhga yuborilmaydi: pending holatda qoladi,
+// xato logga yoziladi, guruh ID qo'shilib server qayta ishga tushganda avtomatik yuboriladi.
 import { config, telegramReady } from '../config/env.js'
-import { PRODUCTS } from '../utils/validation.js'
+import { PRODUCTS, groupIdFor, groupEnvName } from '../config/products.js'
 import { escapeHtml, tashkentDateTime, adChannel } from '../utils/format.js'
-import { claimTelegram, updateTelegram, listDue } from './orderStore.js'
+import { claimTelegram, updateTelegram, listDue, getOrder } from './orderStore.js'
 
 const UTM_LABELS = {
   utm_source: 'source',
@@ -12,25 +18,22 @@ const UTM_LABELS = {
   utm_id: 'id'
 }
 
+const GROUP_NOT_CONFIGURED = 'group_not_configured'
+
 /** Telegram xabar matni (HTML). Foydalanuvchi kiritgan har bir qiymat escape qilinadi. */
 export function buildMessage(order) {
   const { date, time } = tashkentDateTime(order.created_at)
   const e = escapeHtml
-  const product = order.product ? PRODUCTS[order.product] : "Ko'rsatilmagan (maslahat)"
+  const productName = PRODUCTS[order.product_code]?.name || order.product_code
 
   const lines = [
-    '🔔 <b>YANGI BUYURTMA — GEPOMER</b>',
+    `🔔 <b>ЯНГИ БУЮРТМА — ${e(productName)}</b>`,
     '',
-    `🆔 Buyurtma ID: <b>${e(order.id)}</b>`,
-    '',
-    `👤 Mijoz: ${e(order.name)}`,
-    `📞 Telefon: ${e(order.phone)}`,
-    `📦 Mahsulot: ${e(product)}`,
-    `📅 Sana: ${date}`,
-    `🕒 Vaqt: ${time}`,
-    '',
-    `🌐 Manba: ${e(order.source)}`,
-    `📢 Reklama: ${e(adChannel(order.utm))}`
+    `🆔 <b>${e(order.id)}</b>`,
+    `👤 Мижоз: ${e(order.name)}`,
+    `📞 Телефон: ${e(order.phone)}`,
+    `📦 Маҳсулот: ${e(order.product_name || productName)}`,
+    `🌐 Манба: ${e(adChannel(order.utm))}`
   ]
 
   const utmLines = Object.entries(UTM_LABELS)
@@ -38,20 +41,20 @@ export function buildMessage(order) {
     .map(([k, label]) => `   • ${label}: ${e(order.utm[k])}`)
   if (utmLines.length) lines.push('🏷 UTM:', ...utmLines)
 
-  lines.push('', `📣 Marketing roziligi: ${order.consent?.marketing ? 'Ha' : "Yo'q"}`)
-  lines.push('', '✅ Holat: Yangi buyurtma')
+  lines.push(`🕒 Сана: ${date}, ${time} (Тошкент вақти)`)
+  lines.push(`📣 Маркетинг розилиги: ${order.consent?.marketing ? 'Ҳа' : 'Йўқ'}`)
+  lines.push('', '✅ Ҳолат: Янги буюртма')
   return lines.join('\n')
 }
 
 class TelegramError extends Error {
-  constructor(message, { retryAfter = 0, permanent = false } = {}) {
+  constructor(message, { retryAfter = 0 } = {}) {
     super(message)
     this.retryAfter = retryAfter
-    this.permanent = permanent
   }
 }
 
-async function sendMessage(chatId, text) {
+async function sendMessage(chatId, text, productCode) {
   const url = `${config.telegram.apiBase}/bot${config.telegram.token}/sendMessage`
   const ctrl = new AbortController()
   const timer = setTimeout(() => ctrl.abort(), config.telegram.requestTimeoutMs)
@@ -79,12 +82,13 @@ async function sendMessage(chatId, text) {
 
   const desc = data?.description || `HTTP ${res.status}`
   const retryAfter = data?.parameters?.retry_after || 0
-  const migrateTo = data?.parameters?.migrate_to_chat_id
-  if (migrateTo) {
-    console.error(`[telegram] Guruh supergroup'ga o'tgan. TELEGRAM_GROUP_ID=${migrateTo} qilib yangilang.`)
+  if (data?.parameters?.migrate_to_chat_id) {
+    console.error(
+      `[telegram] ${productCode} guruhi supergroup'ga o'tgan. ${groupEnvName(productCode)} ni yangi ID bilan yangilang (npm run chat-id).`
+    )
   }
-  // 401 — token noto'g'ri; 400/403 — chat topilmadi / bot guruhda emas. Bular sozlama xatosi,
-  // lekin sozlama tuzatilgach yuborilishi uchun "permanent" emas, oddiy retry sifatida qoldiramiz.
+  // 401 — token noto'g'ri; 400/403 — chat topilmadi / bot guruhda emas. Sozlama tuzatilgach
+  // yuborilishi uchun oddiy qayta urinish sifatida qoldiramiz.
   throw new TelegramError(desc, { retryAfter })
 }
 
@@ -94,18 +98,35 @@ function backoffMs(attempts, retryAfterSec) {
   return Math.min(30 * 60 * 1000, 30_000 * 2 ** Math.max(0, attempts - 1))
 }
 
+/** Manzil chat ID si: guruh — faqat o'z mahsulotiniki; admin — TELEGRAM_ADMIN_ID */
+function chatIdFor(productCode, target) {
+  return target === 'group' ? groupIdFor(productCode) : config.telegram.adminId
+}
+
 /**
  * Bitta manzilga (group yoki admin) yuborishga urinadi.
  * claimTelegram atomik band qiladi — shuning uchun bir xabar parallel ikki marta yuborilmaydi.
  */
-export async function deliver(orderId, target) {
+export async function deliver(orderId, target, productCode) {
   if (!telegramReady()) return 'skipped'
+
+  const code = productCode || (await getOrder(orderId))?.product_code
+  const chatId = chatIdFor(code, target)
+  if (!chatId) {
+    // Boshqa mahsulot guruhiga YUBORMAYMIZ. Urinish sanalmaydi — buyurtma pending qoladi.
+    const current = await getOrder(orderId)
+    if (current?.telegram?.[target]?.last_error !== GROUP_NOT_CONFIGURED) {
+      await updateTelegram(orderId, target, { last_error: GROUP_NOT_CONFIGURED })
+      console.error(`[telegram] ${orderId}: ${code} uchun Telegram guruh sozlanmagan (${groupEnvName(code)}) — pending holatda saqlandi`)
+    }
+    return 'no_group'
+  }
+
   const order = await claimTelegram(orderId, target, config.telegram.maxAttempts)
   if (!order) return 'busy'
 
-  const chatId = target === 'group' ? config.telegram.groupId : config.telegram.adminId
   try {
-    const msg = await sendMessage(chatId, buildMessage(order))
+    const msg = await sendMessage(chatId, buildMessage(order), order.product_code)
     await updateTelegram(orderId, target, {
       status: 'sent',
       message_id: msg?.message_id ?? null,
@@ -113,7 +134,7 @@ export async function deliver(orderId, target) {
       last_error: null,
       next_retry_at: null
     })
-    console.info(`[telegram] ${orderId} → ${target}: yuborildi`)
+    console.info(`[telegram] ${orderId} → ${order.product_code}/${target}: yuborildi`)
     return 'sent'
   } catch (err) {
     const attempts = order.telegram[target].attempts
@@ -123,15 +144,15 @@ export async function deliver(orderId, target) {
       last_error: String(err.message).slice(0, 300),
       next_retry_at: exhausted ? null : new Date(Date.now() + backoffMs(attempts, err.retryAfter)).toISOString()
     })
-    console.warn(`[telegram] ${orderId} → ${target}: xato (${attempts}-urinish): ${err.message}`)
+    console.warn(`[telegram] ${orderId} → ${order.product_code}/${target}: xato (${attempts}-urinish): ${err.message}`)
     return exhausted ? 'failed' : 'pending'
   }
 }
 
-/** Yangi buyurtmani darhol yuboradi (guruh, keyin kerak bo'lsa admin) */
+/** Yangi buyurtmani darhol yuboradi (o'z guruhiga, keyin kerak bo'lsa adminga) */
 export async function notifyNewOrder(order) {
-  const result = { group: await deliver(order.id, 'group') }
-  if (order.telegram?.admin) result.admin = await deliver(order.id, 'admin')
+  const result = { group: await deliver(order.id, 'group', order.product_code) }
+  if (order.telegram?.admin) result.admin = await deliver(order.id, 'admin', order.product_code)
   return result
 }
 
@@ -143,8 +164,10 @@ async function retryTick() {
   if (running || !telegramReady()) return
   running = true
   try {
-    for (const { orderId, target } of listDue()) {
-      await deliver(orderId, target)
+    for (const { orderId, target, productCode } of await listDue()) {
+      // Guruhi sozlanmagan mahsulotni har safar urinmaymiz (logni to'ldirmaslik uchun)
+      if (target === 'group' && !groupIdFor(productCode)) continue
+      await deliver(orderId, target, productCode)
     }
   } catch (err) {
     console.error('[telegram] retry xatosi:', err.message)

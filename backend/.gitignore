@@ -4,5 +4,6 @@ node_modules/
 !.env.example
 data/*.json
 data/*.tmp
+data/orders.json*
 !data/.gitkeep
 *.log

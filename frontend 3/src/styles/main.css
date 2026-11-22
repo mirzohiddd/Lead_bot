@@ -1,0 +1,312 @@
+/* ============ DERMOLIFE COMPLEX — Target landing (bitta ustunli mobil sahifa) ============
+   Ranglar mahsulot qadoqlaridan olingan: daraxt-logotip yashili, barg (lime) urg'usi, oq va och fon. */
+:root {
+  --brand: #157a3d;
+  --brand-dark: #0f4f2a;
+  --brand-deep: #0a3520;
+  --brand-soft: #e7f4ec;
+  --accent: #8cc63f;
+  --accent-dark: #4e8a1e;
+  --accent-light: #c9eda0;
+  --bg: #f5faf6;
+  --bg-2: #e9f3ec;
+  --white: #ffffff;
+  --text: #17241c;
+  --text-2: #4b5d52;
+  --line: #d9e8de;
+
+  --grad-accent: linear-gradient(135deg, #c3ea8c 0%, #8cc63f 50%, #5fa82e 100%);
+  --grad-brand: linear-gradient(160deg, #1d8a47 0%, #0f5a30 55%, #0a3520 100%);
+
+  --r-card: 16px;
+  --r-input: 12px;
+  --r-btn: 14px;
+  --shadow-card: 0 2px 10px rgba(10, 53, 32, 0.06);
+  --shadow-pop: 0 10px 28px -10px rgba(10, 53, 32, 0.35);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --page-w: 430px;
+  --pad: 16px;
+
+  /* BaseModal uchun aliaslar */
+  --surface: #ffffff;
+  --brand-700: #0f5a30;
+  --accent-grad: var(--grad-accent);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--text);
+  background: #e4efe7;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.no-scroll {
+  overflow: hidden;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Desktopda ham mobil sahifa markazda */
+.page {
+  position: relative;
+  overflow-x: hidden; /* eski brauzerlar uchun zaxira */
+  max-width: var(--page-w);
+  margin: 0 auto;
+  background: var(--bg);
+  min-height: 100vh;
+  box-shadow: 0 0 60px rgba(10, 53, 32, 0.18);
+  overflow-x: clip;
+}
+
+@media (min-width: 600px) {
+  body {
+    background: radial-gradient(circle at 50% 0%, #eef6f0, #d3e5d8);
+  }
+}
+
+/* ----- Bo'limlar ----- */
+.sec {
+  padding: 40px var(--pad);
+}
+
+.sec--white {
+  background: var(--white);
+}
+
+.sec--cream2 {
+  background: var(--bg-2);
+}
+
+.sec--dark {
+  background: var(--grad-brand);
+  color: #fff;
+}
+
+.sec__title {
+  font-size: clamp(24px, 7vw, 30px);
+  line-height: 1.25;
+  font-weight: 800;
+  color: var(--brand-dark);
+  text-align: center;
+  letter-spacing: -0.01em;
+}
+
+.sec--dark .sec__title {
+  color: #fff;
+}
+
+.sec__title em {
+  font-style: normal;
+  color: var(--brand);
+}
+
+.sec--dark .sec__title em {
+  color: var(--accent-light);
+}
+
+.sec__lead {
+  margin: 10px auto 22px;
+  text-align: center;
+  font-size: 16.5px;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+
+.sec--dark .sec__lead {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.sec__foot {
+  margin-top: 18px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--brand-soft);
+  border-left: 4px solid var(--brand);
+  font-size: 15.5px;
+  font-weight: 600;
+  color: var(--brand-dark);
+  line-height: 1.55;
+}
+
+/* ----- Karta ----- */
+.card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-card);
+  padding: 16px;
+}
+
+/* ----- Tugmalar ----- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 58px;
+  padding: 12px 20px;
+  border-radius: var(--r-btn);
+  border: 0;
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  transition: transform 0.2s var(--ease), box-shadow 0.2s, filter 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn--full {
+  width: 100%;
+}
+
+.btn--primary {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(180deg, #1f8d4a 0%, #11612f 100%);
+  box-shadow: 0 8px 20px -6px rgba(21, 122, 61, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Yaltiroq effekt faqat asosiy (pulse) tugmada — ko'p cheksiz animatsiya arzon telefonlarni sekinlashtiradi */
+.btn--primary.pulse::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.35) 50%, transparent 65%);
+  transform: translateX(-120%);
+  /* Cheksiz emas: 4 marta yaltiraydi va to'xtaydi (CPU/batareyani tejash) */
+  animation: shine 3s ease-in-out 1s 4;
+}
+
+.btn--accent {
+  color: var(--brand-deep);
+  background: var(--grad-accent);
+  box-shadow: 0 8px 20px -6px rgba(140, 198, 63, 0.7);
+}
+
+.btn--outline {
+  color: var(--brand);
+  background: transparent;
+  border: 2px solid var(--brand);
+}
+
+.btn[disabled] {
+  opacity: 0.75;
+  cursor: wait;
+}
+
+.pulse {
+  /* Cheksiz emas: 5 marta va to'xtaydi */
+  animation: pulse 2s ease-in-out 5;
+}
+
+@keyframes shine {
+  0%,
+  55% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* ----- Placeholder ----- */
+.ph {
+  border: 1.5px dashed var(--accent);
+  background: repeating-linear-gradient(-45deg, #f4fbf0, #f4fbf0 10px, #e6f3dc 10px, #e6f3dc 20px);
+}
+
+.ph-text {
+  color: var(--accent-dark);
+  font-style: italic;
+}
+
+/* ----- Paydo bo'lish ----- */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -28,14 +28,12 @@ export function tashkentDateTime(iso) {
   return { date: `${parts.day}.${parts.month}.${parts.year}`, time: `${parts.hour}:${parts.minute}` }
 }
 
-/** UTM manbasidan reklama kanalini aniqlaydi */
+/** UTM manbasidan reklama kanalini aniqlaydi (faqat Telegram xabari uchun; mahsulot UTM orqali ANIQLANMAYDI) */
 export function adChannel(utm = {}) {
   const src = (utm.utm_source || '').toLowerCase()
   if (['instagram', 'ig', 'insta'].includes(src)) return 'Instagram Target'
   if (['facebook', 'fb', 'meta'].includes(src)) return 'Facebook Target'
   if (src) return utm.utm_source
-  if (utm.fbclid) return 'Meta reklamasi (fbclid)'
-  return "Aniqlanmagan (to'g'ridan-to'g'ri)"
+  if (utm.fbclid) return 'Meta реклама (fbclid)'
+  return 'Аниқланмаган (тўғридан-тўғри)'
 }
-
-export const formatOrderId = (seq) => `GP-${String(seq).padStart(6, '0')}`

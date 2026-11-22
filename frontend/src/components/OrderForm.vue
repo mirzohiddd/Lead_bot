@@ -72,6 +72,8 @@ async function submit() {
       {
         name,
         phone: '+998' + digits(),
+        // Mahsulot kodi: umumiy backend buyurtmani GEPOMER Telegram guruhiga yo'naltiradi
+        product_code: 'gepomer',
         product: props.product || undefined,
         consent: form.consent,
         marketingConsent: form.marketing,
