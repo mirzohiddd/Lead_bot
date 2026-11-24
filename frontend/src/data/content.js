@@ -317,3 +317,19 @@ export const sources = [
   'Devarbhavi H. ва бошқ. Global burden of liver disease: 2023 update. Journal of Hepatology, 2023.',
   'GBD 2023 MASLD Collaborators. The Lancet Gastroenterology & Hepatology, 2026.'
 ]
+
+//
+// GEPOMER buyurtma konfiguratsiyasi
+//
+
+export const ORDER_PRODUCT = {
+  code: 'gepomer',
+  id: 'gepomer',
+  name: 'GEPOMER',
+  brand: 'gepomer',
+  source: 'Gepomer Landing'
+}
+
+// Maxfiylik siyosati havolasi
+export const privacyUrl =
+  import.meta.env.VITE_PRIVACY_URL || '/privacy.html'
