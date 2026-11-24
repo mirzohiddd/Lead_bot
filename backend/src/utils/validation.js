@@ -94,10 +94,11 @@ export function validateOrder(body) {
   const resolved = resolveProduct(body)
   if (resolved.error) errors.product = resolved.error
 
-  // Rozilik
-  if (body.consent !== true) {
-    errors.consent = "Ma'lumotlarni qayta ishlashga rozilik bering"
-  }
+  // Rozilik — majburiy EMAS. Mijoz o'zi so'ragan buyurtma bo'yicha bog'lanish uchun ism va telefon
+  // checkboxsiz ham qabul qilinadi (frontendda maxfiylik ma'lumoti matn + havola sifatida ko'rsatiladi).
+  // Checkbox bo'lgan frontend (GEPOMER) consent: true yuboradi — u avvalgidek saqlanadi.
+  // Marketing roziligi faqat aniq marketingConsent: true kelganda hisoblanadi, hech qachon avtomatik emas.
+  const consent = body.consent === true
   const marketingConsent = body.marketingConsent === true
 
   // UTM — faqat ruxsat etilgan kalitlar, qisqa satrlar
@@ -121,6 +122,7 @@ export function validateOrder(body) {
       phone,
       productCode: resolved.code,
       product: resolved.variant, // mahsulot ichidagi variant (masalan, gepomer: paste) yoki null
+      consent,
       marketingConsent,
       utm,
       page

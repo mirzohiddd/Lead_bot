@@ -32,7 +32,13 @@ export function buildOrder(input, { id, seq, idempotencyKey, notifyAdmin, now })
     idempotency_key: idempotencyKey || null,
     name: input.name,
     phone: input.phone,
-    consent: { data_processing: true, marketing: input.marketingConsent, at: now },
+    // Faqat haqiqatan berilgan rozilik yoziladi. basis — ma'lumot mijozning o'z buyurtmasi bo'yicha bog'lanish uchun.
+    consent: {
+      data_processing: input.consent === true,
+      marketing: input.marketingConsent === true,
+      basis: 'order_request',
+      at: now
+    },
     utm: input.utm || {},
     page: input.page || null,
     source: p.source,
