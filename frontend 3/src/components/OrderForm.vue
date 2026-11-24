@@ -9,8 +9,10 @@ import { ORDER_PRODUCT, privacyUrl } from '../data/content.js'
 
 const emit = defineEmits(['success'])
 
-const form = reactive({ name: "", phone: "", consent: false, marketing: false, website: '' })
-const errors = reactive({ name: '', phone: '', consent: '' })
+// Forma faqat ism va telefondan iborat. Rozilik checkboxlari yo'q — backendga soxta consent yuborilmaydi,
+// marketing roziligi ham berilgan deb hisoblanmaydi. Maxfiylik ma'lumoti forma ostida matn + havola sifatida.
+const form = reactive({ name: '', phone: '', website: '' })
+const errors = reactive({ name: '', phone: '' })
 const touched = reactive({ name: false, phone: false })
 const loading = ref(false)
 const slow = ref(false) // server uyg'onayotgan bo'lsa (Render cold start) — mijozga tushuntiramiz
@@ -54,9 +56,8 @@ async function submit() {
   serverError.value = ''
   check('name')
   check('phone')
-  errors.consent = form.consent ? '' : 'Давом этиш учун розилик белгисини қўйинг'
-  if (errors.name || errors.phone || errors.consent) {
-    document.getElementById(errors.name ? 'f-name' : errors.phone ? 'f-phone' : 'f-consent')?.focus()
+  if (errors.name || errors.phone) {
+    document.getElementById(errors.name ? 'f-name' : 'f-phone')?.focus()
     return
   }
 
@@ -75,8 +76,6 @@ async function submit() {
         brand: ORDER_PRODUCT.brand,
         productName: ORDER_PRODUCT.name,
         source: ORDER_PRODUCT.source,
-        consent: form.consent,
-        marketingConsent: form.marketing,
         utm: getUtm(),
         page: window.location.pathname,
         website: form.website // honeypot
@@ -88,7 +87,6 @@ async function submit() {
     emit('success', name)
     form.name = ''
     form.phone = ''
-    form.marketing = false
     touched.name = touched.phone = false
     errors.name = errors.phone = ''
     idemKey = newIdempotencyKey()
@@ -97,8 +95,11 @@ async function submit() {
       // Server xato matnlari lotinchada — kirillcha matnlarni frontendda ko'rsatamiz
       errors.name = err.fields.name ? validateName(form.name) || 'Исмни текширинг' : ''
       errors.phone = err.fields.phone ? 'Телефон рақами нотўғри. Формат: +998XXXXXXXXX' : ''
-      errors.consent = err.fields.consent ? 'Маълумотларни қайта ишлашга розилик беринг' : ''
-      serverError.value = err.fields.product || err.fields._ ? 'Маълумотларни текширинг ва қайта уриниб кўринг.' : ''
+      // Ism/telefondan boshqa maydon xatosi (masalan, backend hali yangilanmagan) — umumiy xabar,
+      // muvaffaqiyat oynasi ochilmaydi
+      const other = Object.keys(err.fields).some((k) => k !== 'name' && k !== 'phone')
+      serverError.value =
+        other || (!errors.name && !errors.phone) ? 'Буюртма юборилмади. Илтимос, бироздан кейин қайта уриниб кўринг.' : ''
     } else {
       serverError.value = err.message || 'Хатолик юз берди. Қайта уриниб кўринг.'
     }
@@ -165,18 +166,10 @@ async function submit() {
       <input id="f-product" :value="ORDER_PRODUCT.name" type="text" name="product" readonly tabindex="-1" />
     </div>
 
-    <label class="oform__check" :class="{ err: errors.consent }">
-      <input id="f-consent" v-model="form.consent" type="checkbox" :disabled="loading" @change="errors.consent = ''" />
-      <span>
-        <a :href="privacyUrl" target="_blank" rel="noopener" class="oform__link">Махфийлик сиёсати</a> билан
-        танишдим ва маълумотларим буюртма бўйича мен билан боғланиш учун қайта ишланишига розиман
-      </span>
-    </label>
-    <p class="oform__err" role="alert">{{ errors.consent }}</p>
-    <label class="oform__check">
-      <input v-model="form.marketing" type="checkbox" :disabled="loading" />
-      <span>Акция ва янгиликлар ҳақида хабар олишга розиман (ихтиёрий)</span>
-    </label>
+    <p class="oform__privacy">
+      Исм ва телефон рақамингиз фақат шу буюртма бўйича сиз билан боғланиш учун ишлатилади.
+      <a :href="privacyUrl" target="_blank" rel="noopener" class="oform__link">Махфийлик сиёсати</a>
+    </p>
 
     <p v-if="serverError" class="oform__server" role="alert">
       <AppIcon name="alert" :size="18" />
@@ -282,27 +275,11 @@ async function submit() {
   overflow: hidden;
 }
 
-.oform__check {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin-top: 12px;
-  font-size: 15px;
-  line-height: 1.45;
+.oform__privacy {
+  margin: 14px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
   color: var(--text-2);
-  cursor: pointer;
-}
-
-.oform__check input {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-  margin: 1px 0 0;
-  accent-color: var(--brand);
-}
-
-.oform__check.err span {
-  color: #c0392b;
 }
 
 .oform__server {
